@@ -1,0 +1,13 @@
+package cloudos.config.openstack;
+
+import "OS.Network.proto";
+
+message KeystoneClient {
+  optional string host = 1;
+  optional uint32 port = 2;
+  optional cloudos.config.os.WebProtocol protocol = 4;
+  optional string uri = 6;
+  optional string admin_tenant_name = 8;
+  optional string admin_user = 10;
+  optional string admin_password = 12;
+}

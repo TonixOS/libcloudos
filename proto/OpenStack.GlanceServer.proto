@@ -1,0 +1,13 @@
+import "OS.Network.proto";
+
+package cloudos.config.openstack;
+
+message GlanceServer {
+  optional string host = 2;
+  optional uint32 port = 4;
+  optional uint32 workers = 6;
+  optional string registry_host = 8;
+  optional uint32 registry_port = 10;
+  optional cloudos.config.os.WebProtocol registry_client_protocol = 12;
+  optional cloudos.config.os.SSLSettings ssl_settings = 14;
+}

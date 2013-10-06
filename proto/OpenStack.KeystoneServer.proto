@@ -1,0 +1,8 @@
+package cloudos.config.openstack;
+
+import "OS.Network.proto";
+
+message KeystoneServer {
+  optional string admin_token = 2;
+  optional cloudos.config.os.SSLSettings ssl_settings = 4;
+}

@@ -1,0 +1,40 @@
+package cloudos.config.os; // namespace
+
+message Installer {
+  // will install the web management VM
+  optional bool install_management = 20 [default = false];
+
+  // which services should be installed by the installer?
+  optional bool install_mariadb    = 25 [default = false];
+  optional bool install_rabbitmq   = 30 [default = false];
+
+  // OpenStack services
+  optional bool install_keystone   = 40 [default = false];
+  optional bool install_quantum    = 45 [default = false];
+  optional bool install_glance     = 50 [default = false];
+  optional bool install_cinder     = 55 [default = false];
+  optional bool install_nova       = 60 [default = false];
+}
+
+message InstallerDiskPartition {
+  enum Type {
+    EXT4 = 0;
+    LVM  = 1;
+  }
+  optional string uuid         = 2;
+  optional Type   type         = 4;
+  optional string mountpoint   = 6;
+  optional string mountoptions = 8;
+}
+
+message InstallerDisk {
+  optional string                 device_path = 2;
+  repeated InstallerDiskPartition partition   = 4;
+
+  // disk manufacture name
+  optional string                 model       = 6;
+
+  // size in GB
+  optional uint64                 size        = 8;
+}
+

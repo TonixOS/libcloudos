@@ -1,0 +1,9 @@
+import "OS.Network.proto";
+
+package cloudos.config.vm;
+
+message ManagementServer {
+  optional string ip = 6;
+  optional string secret_key = 10;
+  optional cloudos.config.os.SSLSettings ssl_settings = 12;
+}

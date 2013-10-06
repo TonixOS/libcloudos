@@ -1,0 +1,11 @@
+package cloudos.config.package; // namespace
+
+message RabbitmqClient {
+  optional string host = 1;
+  optional uint32 port = 2;
+  optional bool use_ssl = 4 [default = true];
+  optional string userid = 6;
+  optional string password = 8;
+  optional string virtual_host = 10;
+  optional bool durable_queues = 12 [default = false];
+}

@@ -1,0 +1,65 @@
+package cloudos.config.os; // namespace
+
+message NetworkRoute {
+  enum Type {
+    VIA = 0; // route "via" hop
+    DEV = 1; // route over "dev"
+  }   
+  optional Type type = 2 [default = VIA];
+
+  // the value of the route, that should be routed like:
+  // 0.0.0.0/0 in ip route add 0.0.0.0/0 via 192.168.0.1
+  //
+  // you might specify multiple IPs to be routed...
+  repeated string route_ip = 4;
+
+  // something like "192.168.0.1" in ip route add 0.0.0.0/0 via 192.168.0.1
+  // or "eth0" in ip route add 192.168.0.0/24 dev eth0
+  optional string gateway = 6;
+}
+
+message NetworkInterface {
+  // the interface name like "eth0"
+  optional string name        =  2;
+
+  // our interface ip in CIDR format
+  repeated string ip_cidr     =  4;
+
+  // dns servers, used when interface comes up
+  repeated string dns_server  =  6;
+
+  // a gateway is just a route...
+  repeated NetworkRoute route = 10;
+}
+
+message SSHTunnel {
+  optional string tunnel_name =  2;
+
+  // local settings
+  optional string local_ip    =  4 [default = "127.0.0.1"];
+  optional int32  local_port  =  6;
+
+  // remote settings
+  optional string remote_ip   =  8;
+  optional int32  remote_port = 10;
+  optional string remote_user = 12 [default = "root"];
+
+  // which key file should be used, for authentication
+  optional string key_file    = 20;
+}
+
+message WebProtocol {
+  enum Type {
+    HTTP = 0;
+    HTTPS = 1;
+  }
+  required Type type = 2 [default = HTTPS];
+}
+
+message SSLSettings {
+  optional string ca_file         = 2;
+  optional string cert_file       = 4;
+  optional string key_file        = 6;
+  optional bool   allow_untrusted = 8 [default = false];
+}
+

@@ -1,0 +1,9 @@
+package cloudos.config.package;
+
+message MariadbClient {
+  optional uint32 port = 2;
+  optional string ip = 4;
+  optional string user = 6;
+  optional string password = 8;
+  optional string db = 10;
+}

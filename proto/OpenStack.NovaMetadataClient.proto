@@ -1,0 +1,6 @@
+package cloudos.config.openstack;
+
+message NovaMetadataClient {
+  optional uint32 port = 2;
+  optional string ip = 6;
+}

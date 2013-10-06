@@ -1,0 +1,11 @@
+import "OS.Network.proto";
+
+package cloudos.config.openstack;
+
+message CinderServer {
+  optional string host = 2;
+  optional uint32 port = 4 [default = 8776];
+  optional string volume_group = 8 [default = "vg_storage"];
+  optional cloudos.config.os.WebProtocol protocol = 12;
+  optional cloudos.config.os.SSLSettings ssl_settings = 14;
+}

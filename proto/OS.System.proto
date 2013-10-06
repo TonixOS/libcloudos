@@ -1,0 +1,9 @@
+package cloudos.config.os; // namespace
+
+message System {
+  optional string hostname        = 2;
+  optional string root_password   = 4;
+  optional string keyboard_layout = 6;
+  optional string locale_charset  = 8;
+}
+
