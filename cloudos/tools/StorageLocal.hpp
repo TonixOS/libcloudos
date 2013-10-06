@@ -47,7 +47,7 @@ namespace tools {
     /**
      * returns a list of devices, without partitions!
      */
-    virtual const std::set<StorageLocalConfigPointer> getAvailableDisks();
+    virtual const std::set<StorageLocalConfigPointer> getAvailableDisks(bool p_filter_install_able = false);
     
     /**
      * Will apply all settings within c_settings on this system

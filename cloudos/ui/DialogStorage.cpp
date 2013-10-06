@@ -36,12 +36,13 @@ namespace ui {
        << "Please choose carefuly" << std::endl;
     c_lbl_intro = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
     
-    c_sbox_disks = YUI::widgetFactory()->createSelectionBox(c_layout_main, "Available Local Disks");
-    c_sbox_disks->setStretchable(YD_HORIZ, true);
-    c_sbox_disks->setStretchable(YD_VERT,  true);
+    c_cbox_disks = YUI::widgetFactory()->createComboBox(c_layout_main, "Available Local Disks");
+    c_cbox_disks->setStretchable(YD_HORIZ, true);
+    c_cbox_disks->setStretchable(YD_VERT,  true);
     
-    std::set<tools::StorageLocalConfigPointer> disk_list = c_storage->getAvailableDisks();
+    std::set<tools::StorageLocalConfigPointer> disk_list = c_storage->getAvailableDisks( true );
     std::set<tools::StorageLocalConfigPointer>::const_iterator it;
+    pb::uint64 biggest_hdd = 0;
     for( it = disk_list.begin(); it != disk_list.end(); ++it ) {
       std::stringstream ss;
       ss << it->get()->device_path() << " (" << it->get()->size() << "GiB) Model: "
@@ -49,16 +50,18 @@ namespace ui {
       YItem *item = new YItem( ss.str() );
       
       c_device_sbox_match[item] = *it; // for later matching
-      c_sbox_disks->addItem( item );
+      c_cbox_disks->addItem( item );
       
-      if( c_settings->device_path() == it->get()->device_path() ) {
-        c_sbox_disks->selectItem( item );
+      // always pre-select the biggest HDD
+      if( c_settings->device_path() == it->get()->device_path() || it->get()->size() > biggest_hdd ) {
+        c_cbox_disks->selectItem( item );
+        biggest_hdd = it->get()->size();
       }
     }
   }
 
   void DialogStorage::processUserInput() {
-    YItem *item = c_sbox_disks->selectedItem();
+    YItem *item = c_cbox_disks->selectedItem();
     setSettings( c_device_sbox_match.at( item ) );
   }
 

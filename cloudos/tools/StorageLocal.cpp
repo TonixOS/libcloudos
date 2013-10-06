@@ -33,7 +33,7 @@ namespace tools {
     return msg;
   }
 
-  const std::set<StorageLocalConfigPointer> StorageLocal::getAvailableDisks() {
+  const std::set<StorageLocalConfigPointer> StorageLocal::getAvailableDisks(bool p_filter_install_able) {
     if( c_available_disks.empty() ) {
       // scan for disks
       ped_device_probe_all();
@@ -46,11 +46,17 @@ namespace tools {
     
     std::set<StorageLocalConfigPointer> list;
     std::map<std::string, PedDevice*>::iterator i;
+    pb::uint64 disk_size = 0;
     for(i = c_available_disks.begin(); i != c_available_disks.end(); ++i) {
+      disk_size = calculateSize( i->second->hw_geom , i->second->sector_size );
+      if( p_filter_install_able && disk_size < 20 ) {
+        continue;
+      }
+      
       StorageLocalConfigPointer storage( new config::os::InstallerDisk );
       storage->set_device_path( i->first );
       storage->set_model( i->second->model );
-      storage->set_size( calculateSize( i->second->hw_geom , i->second->sector_size ) );
+      storage->set_size( disk_size );
       list.insert( storage );
     }
     return list;

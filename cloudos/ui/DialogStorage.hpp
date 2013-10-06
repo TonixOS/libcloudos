@@ -2,6 +2,7 @@
 #ifndef CLOUDOS_UI_DIALOG_STORAGE_HPP__
 #define CLOUDOS_UI_DIALOG_STORAGE_HPP__
 
+#include <yui/YComboBox.h>
 
 #include <cloudos/tools/StorageLocal.hpp>
 
@@ -40,7 +41,7 @@ namespace ui {
     // Our GUI elements
     // 
     YLabel    *c_lbl_intro;
-    YSelectionBox *c_sbox_disks;
+    YComboBox *c_cbox_disks;
     
     std::map<YItem*, tools::StorageLocalConfigPointer> c_device_sbox_match;
     
