@@ -143,6 +143,7 @@ namespace tools {
     PedPartition *part = ped_partition_new(c_disk, PED_PARTITION_NORMAL, fs_type, start_sector, part_end_sector);
     
     if( part == nullptr ) {
+      ped_disk_print(c_disk);
       std::cerr << "Error while creating partition number " << c_partitions.size() << ' '
                 << " max_sectors: " << max_sectors << " part_end_sector: " << part_end_sector
                 << " start_sector: " << start_sector
