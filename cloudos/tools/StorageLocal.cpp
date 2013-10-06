@@ -75,7 +75,13 @@ namespace tools {
   }
   
   bool StorageLocal::createPartitionTable() {
-    PedDevice *device = c_available_disks[c_settings->device_path()];
+    PedDevice *device;
+    if( c_available_disks.empty() ) {
+      device = ped_device_get( c_settings->device_path().c_str() );
+      c_available_disks[c_settings->device_path()] = device;
+    } else {
+      device = c_available_disks[c_settings->device_path()];
+    }
     
     std::cout << "starting to partition " << c_settings->device_path() << std::endl;
     
