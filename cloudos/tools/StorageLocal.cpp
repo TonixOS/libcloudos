@@ -57,6 +57,24 @@ namespace tools {
   }
   
   bool StorageLocal::applyToSystem() {
+    if( c_disk == nullptr ) {
+      return false;
+    }
+    
+    if( ped_disk_commit_to_dev(c_disk) == 0 ) {
+      std::cerr << "Error while commit first partition to dev" << __FILE__ << '/' << __LINE__ << std::endl;
+      return false;
+    }
+    
+    if( ped_disk_commit_to_os(c_disk) == 0 ) {
+      std::cerr << "Error while commit first partition to os" << __FILE__ << '/' << __LINE__ << std::endl;
+      return false;
+    }
+    
+    return true;
+  }
+  
+  bool StorageLocal::createPartitionTable() {
     PedDevice *device = c_available_disks[c_settings->device_path()];
     
     std::cout << "starting to partition " << c_settings->device_path() << std::endl;
@@ -73,9 +91,16 @@ namespace tools {
       return false;
     }
     
-    PedDisk *disk = ped_disk_new_fresh(device, type);
-    if( disk == nullptr ) {
+    c_disk = ped_disk_new_fresh(device, type);
+    if( c_disk == nullptr ) {
       std::cerr << "Error while creating a new partition for " << c_settings->device_path() << std::endl;
+      return false;
+    }
+    return true;
+  }
+  
+  bool StorageLocal::addPartition ( unsigned int p_size, char p_size_unit, bool p_set_lvm_flag ) {
+    if( c_disk == nullptr ) {
       return false;
     }
     
@@ -85,47 +110,60 @@ namespace tools {
       std::cerr << "Error while getting fs type ext4 FILE/LINE" << __FILE__ << '/' << __LINE__ << std::endl;
       return false;
     }
+        
+    PedSector max_sectors, start_sector, part_end_sector;
     
-    PedSector max_sector = ped_disk_max_partition_length( disk );
-    PedSector start_sector = 2048;
+    // max length in sectors
+    max_sectors = ped_disk_max_partition_length( c_disk );
     
-    PedSector first_part_end = getSectorCounterForNumber(100, 'M') + start_sector;
-    if( first_part_end == 0 ) {
+    // get start sector
+    if( c_partitions.empty() ) {
+      start_sector = 2048;
+    } else {
+      start_sector = c_partitions.back() + 1;
+    }
+    
+    // get ending sector
+    if( p_size == 0 ) {
+      part_end_sector = max_sectors + start_sector - 1;
+    } else {
+      part_end_sector = getSectorCounterForNumber(p_size, p_size_unit) + start_sector;
+    }
+    
+    if( part_end_sector == 0 ) {
       std::cerr << "Error while calculating first_part_end " << __FILE__ << '/' << __LINE__ << std::endl;
       return false;
     }
-    
-    if( first_part_end > max_sector ) {
-      std::cerr << "Error first_part_end exeeded max_sector: " << first_part_end << "tried and max: " << max_sector << "max " << __FILE__ << '/' << __LINE__ << std::endl;
+        
+    if( part_end_sector > (max_sectors + start_sector) ) {
+      std::cerr << "Error part_end_sector exeeded max_sector: " << part_end_sector << "tried and max: " << max_sectors << "max " << __FILE__ << '/' << __LINE__ << std::endl;
       return false;
     }
+        
+    PedPartition *part = ped_partition_new(c_disk, PED_PARTITION_NORMAL, fs_type, start_sector, part_end_sector);
     
-    PedPartition *part = ped_partition_new(disk, PED_PARTITION_NORMAL, fs_type, start_sector, first_part_end);
+    if( p_set_lvm_flag && ped_partition_is_flag_available( part, PED_PARTITION_LVM ) == 1 ) {
+      ped_partition_set_flag( part, PED_PARTITION_LVM, 1 );
+    }
     
     if( part == nullptr ) {
-      std::cerr << "Error while creating first partition" << __FILE__ << '/' << __LINE__ << std::endl;
+      std::cerr << "Error while creating partition number " << c_partitions.size() << ' ' << __FILE__ << '/' << __LINE__ << std::endl;
       return false;
     }
+        
+    PedConstraint *constraint = ped_device_get_constraint( c_available_disks[ c_settings->device_path() ] );
     
-    PedConstraint *constraint = ped_device_get_constraint(device);
-    
-    if( ped_disk_add_partition(disk, part, constraint) == 0 ) {
+    if( ped_disk_add_partition(c_disk, part, constraint) == 0 ) {
       std::cerr << "Error while adding first partition" << __FILE__ << '/' << __LINE__ << std::endl;
       return false;
     }
     
-    if( ped_disk_commit_to_dev(disk) == 0 ) {
-      std::cerr << "Error while commit first partition to dev" << __FILE__ << '/' << __LINE__ << std::endl;
-      return false;
-    }
+    c_partitions.push_back( part_end_sector );
     
-    if( ped_disk_commit_to_os(disk) == 0 ) {
-      std::cerr << "Error while commit first partition to os" << __FILE__ << '/' << __LINE__ << std::endl;
-      return false;
-    }
-    
-    return false;
+    return true;
   }
+
+
   
   PedSector StorageLocal::getSectorCounterForNumber ( unsigned int p_value, char p_unit ) {
     unsigned long long return_value = p_value;

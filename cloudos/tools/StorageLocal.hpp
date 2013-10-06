@@ -4,6 +4,7 @@
 
 #include <set>
 #include <map>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
@@ -55,10 +56,31 @@ namespace tools {
      */
     virtual bool applyToSystem();
     
+    /**
+     * will create a new partitiontable, based on disk size, it will
+     * automaticly use GPT (if size > 2TB) or MSDOS
+     * 
+     * will override the current partitiontable on the device (if already available)
+     */
+    virtual bool createPartitionTable();
+    
+    /**
+     * adds a partition to the disk
+     * specify p_size==0 to allocate all available disk space
+     */
+    virtual bool addPartition(unsigned int p_size, char p_size_unit = 'G', bool p_set_lvm_flag = false);
+    
     
   private:
     StorageLocalConfigPointer c_settings;
     std::map<std::string, PedDevice*> c_available_disks;
+    
+    /**
+     * all partitions and their end-sectors
+     */
+    std::vector<PedSector> c_partitions;
+    
+    PedDisk *c_disk;
     
     /**
      * returns size in GiB
@@ -73,9 +95,6 @@ namespace tools {
      * Will return 0 if there is an error
      */
     PedSector getSectorCounterForNumber( unsigned int p_value, char p_unit = 'G' );
-    
-    bool createPartitionTable();
-    bool createPartitions();
   };
   
 }
