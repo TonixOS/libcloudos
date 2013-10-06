@@ -68,7 +68,10 @@ namespace tools {
      * adds a partition to the disk
      * specify p_size==0 to allocate all available disk space
      */
-    virtual bool addPartition(unsigned int p_size, char p_size_unit = 'G', bool p_set_lvm_flag = false);
+    virtual bool addPartition(unsigned int p_size,
+                              char p_size_unit = 'G',
+                              bool p_set_lvm_flag = false,
+                              const std::string p_fs_type = std::string("ext2"));
     
     
   private:

@@ -105,13 +105,16 @@ namespace tools {
     return true;
   }
   
-  bool StorageLocal::addPartition ( unsigned int p_size, char p_size_unit, bool p_set_lvm_flag ) {
+  bool StorageLocal::addPartition ( unsigned int p_size,
+                                    char p_size_unit,
+                                    bool p_set_lvm_flag,
+                                    const std::string p_fs_type ) {
     if( c_disk == nullptr ) {
       return false;
     }
     
     // create new partition
-    PedFileSystemType *fs_type = ped_file_system_type_get("ext2");
+    PedFileSystemType *fs_type = ped_file_system_type_get(p_fs_type.c_str());
     if( fs_type == nullptr ) {
       std::cerr << "Error while getting fs type ext4 FILE/LINE" << __FILE__ << '/' << __LINE__ << std::endl;
       return false;
