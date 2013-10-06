@@ -59,6 +59,8 @@ namespace tools {
   bool StorageLocal::applyToSystem() {
     PedDevice *device = c_available_disks[c_settings->device_path()];
     
+    std::cout << "starting to partition " << c_settings->device_path() << std::endl;
+    
     PedDiskType *type;
     if( c_settings->size() > 2000 ) { // gt 2TB
       type = ped_disk_type_get("gpt");
@@ -147,7 +149,6 @@ namespace tools {
     for( ; iterator != 0; --iterator  ) {
       return_value = return_value * 1024;
     }
-    return_value = return_value * 8; // convert to bytes
     
     return (PedSector) return_value / c_available_disks[ c_settings->device_path() ]->sector_size;
   }
