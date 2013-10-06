@@ -114,7 +114,7 @@ namespace tools {
     PedSector max_sectors, start_sector, part_end_sector;
     
     // max length in sectors
-    max_sectors = ped_disk_max_partition_length( c_disk );
+    max_sectors = c_available_disks[ c_settings->device_path() ]->length;
     
     // get start sector
     if( c_partitions.empty() ) {
@@ -125,7 +125,7 @@ namespace tools {
     
     // get ending sector
     if( p_size == 0 ) {
-      part_end_sector = max_sectors - 1;
+      part_end_sector = max_sectors + start_sector - 1;
     } else {
       part_end_sector = getSectorCounterForNumber(p_size, p_size_unit) + start_sector;
     }
@@ -135,7 +135,7 @@ namespace tools {
       return false;
     }
         
-    if( part_end_sector > max_sectors ) {
+    if( part_end_sector > (max_sectors + start_sector) ) {
       std::cerr << "Error part_end_sector exeeded max_sector: " << part_end_sector << "tried and max: " << max_sectors << "max " << __FILE__ << '/' << __LINE__ << std::endl;
       return false;
     }
