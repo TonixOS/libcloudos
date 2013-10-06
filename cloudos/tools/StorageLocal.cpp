@@ -125,7 +125,7 @@ namespace tools {
     
     // get ending sector
     if( p_size == 0 ) {
-      part_end_sector = max_sectors + start_sector - 1;
+      part_end_sector = max_sectors - 1;
     } else {
       part_end_sector = getSectorCounterForNumber(p_size, p_size_unit) + start_sector;
     }
@@ -135,22 +135,22 @@ namespace tools {
       return false;
     }
         
-    if( part_end_sector > (max_sectors + start_sector) ) {
+    if( part_end_sector > max_sectors ) {
       std::cerr << "Error part_end_sector exeeded max_sector: " << part_end_sector << "tried and max: " << max_sectors << "max " << __FILE__ << '/' << __LINE__ << std::endl;
       return false;
     }
         
     PedPartition *part = ped_partition_new(c_disk, PED_PARTITION_NORMAL, fs_type, start_sector, part_end_sector);
     
-    if( p_set_lvm_flag && ped_partition_is_flag_available( part, PED_PARTITION_LVM ) == 1 ) {
-      ped_partition_set_flag( part, PED_PARTITION_LVM, 1 );
-    }
-    
     if( part == nullptr ) {
       std::cerr << "Error while creating partition number " << c_partitions.size() << ' ' << __FILE__ << '/' << __LINE__ << std::endl;
       return false;
     }
-        
+    
+    if( p_set_lvm_flag && ped_partition_is_flag_available( part, PED_PARTITION_LVM ) == 1 ) {
+      ped_partition_set_flag( part, PED_PARTITION_LVM, 1 );
+    }
+    
     PedConstraint *constraint = ped_device_get_constraint( c_available_disks[ c_settings->device_path() ] );
     
     if( ped_disk_add_partition(c_disk, part, constraint) == 0 ) {
