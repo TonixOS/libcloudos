@@ -30,13 +30,12 @@ namespace ui {
 
   void DialogStorage::createDialogElements() {
     std::stringstream ss;
-    ss << "Please configure your local storage" << std::endl
-       << "The selected disk will be ERASED and all containing data" << std::endl
-       << "will be LOST!" << std::endl
-       << "Please choose carefuly" << std::endl;
+    ss << "Please select your storage area where Interactive Cloud OS should be installed." << std::endl << std::endl
+       << "WARNING: The selected area will be erased and all data will be lost! If you don’t want to proceed- STOP NOW!" << std::endl
+       << std::endl << std::endl;
     c_lbl_intro = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
     
-    c_cbox_disks = YUI::widgetFactory()->createComboBox(c_layout_main, "Available Local Disks");
+    c_cbox_disks = YUI::widgetFactory()->createComboBox(c_layout_main, "Please select your installation disk space:");
     c_cbox_disks->setStretchable(YD_HORIZ, true);
     c_cbox_disks->setStretchable(YD_VERT,  true);
     
