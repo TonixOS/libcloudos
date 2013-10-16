@@ -29,19 +29,20 @@ namespace ui {
     inputFile->open( p_file.string().c_str(), std::ios::in );
     std::string line;
     while(inputFile->good()) {
-      std::getline( *inputFile, line);
+      std::getline( *(inputFile.get()), line);
       c_welcome_text << line << std::endl;
       line.clear();
     }
-    c_lb_welcome_text->setLabel( c_welcome_text.str() );
     return true;
   }
 
   
   void DialogWelcome::createDialogElements() {
-    c_welcome_text << "Welcome to Interactive Cloud OS (Version __CLOUDOS__VERSION__)" << std::endl
-                   << "Warning: THIS INSTALLATION WILL ERASE ANY EXISTING DATA ON YOUR DISKS."  << std::endl
-                   << "DO YOU WANT TO PROCEED?" << std::endl;
+    if( c_welcome_text.rdbuf()->in_avail() == 0 ) {
+      c_welcome_text << "Welcome to Interactive Cloud OS (Version __CLOUDOS__VERSION__)" << std::endl
+                     << "Warning: THIS INSTALLATION WILL ERASE ANY EXISTING DATA ON YOUR DISKS."  << std::endl
+                     << "DO YOU WANT TO PROCEED?" << std::endl;
+    }
     c_lb_welcome_text = YUI::widgetFactory()->createLabel( c_layout_main, c_welcome_text.str() );
   }
 
