@@ -6,6 +6,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
+extern "C" {
+#include <arpa/inet.h>
+}
+
 namespace ip = boost::asio::ip;
 
 namespace cloudos {
@@ -31,29 +35,106 @@ namespace tools {
     bool setValue( const std::string& p_ip);
     
     /**
+     * will increment the current IP about the givven value
+     * 
+     * To decrement the value, just use something like "-2"
+     * 
+     * e.g.: IPAddress(10.0.0.2).setIncrementValue(4) will result in 10.0.0.6
+     */
+    bool setIncrementValue( int p_value );
+    
+    /**
      * return the address in CIDR notation
      */
     std::string cidr() const;
     
     /**
-     * returns the address withour prefix (CIDR)
+     * returns the address without prefix (CIDR)
      */
     std::string ip() const;
+    
+    /**
+     * returns the netmask (like 255.255.255.0) of the current IP address
+     * return will be empty if object is invalid
+     * 
+     * FIXME: add support for IPv6
+     */
+    std::string netmask() const;
+    
+    /**
+     * returns the broadcast address (like 192.168.255.255) of the current IP address
+     * return will be empty if object is invalid
+     * 
+     * FIXME: add support for IPv6
+     */
+    std::string broadcast() const;
+    
+    /**
+     * returns the netaddress of the current IP address
+     * return will be empty if object is invalid
+     * 
+     * FIXME: add support for IPv6
+     */
+    std::string netaddress() const;
+    
+    const std::string& prefix() const;
     
     std::string error_message() { return c_error_message.str(); }
     
     bool operator==( const IPAddress& p_ip ) const;
     bool operator==( const std::string& p_ip ) const;
     
-    bool isPrefixValid( const std::string& p_prefix, const ::ip::address& p_address ) const;
-    
   protected:
   private:
     bool c_is_valid;
     std::stringstream c_error_message;
     
-    ::ip::address c_address;
-    std::string              c_prefix;
+    ::ip::address     c_address;
+    
+    /*
+     * in host byte order
+     */
+    uint32_t          c_address_binary;
+    std::string       c_prefix;
+    uint8_t           c_prefix_number;
+    
+    /*
+     * in host byte order
+     */
+    uint32_t          c_netmask;
+    /*
+     * in host byte order
+     */
+    uint32_t          c_netaddress;
+    /*
+     * in host byte order
+     */
+    uint32_t          c_broadcast;
+    
+    /**
+     * just do the constructor stuff
+     */
+    void init();
+    
+    /**
+     * will set c_netmask
+     */
+    void calculateNetmask();
+    
+    /**
+     * will set c_netaddress and c_address_binary
+     */
+    void calculateNetaddress();
+    
+    /**
+     * will set c_broadcast
+     */
+    void calculateBroadcast();
+    
+    /**
+     * will set c_prefix_number and return, if the prefix is valid
+     */
+    bool isPrefixValid( const std::string& p_prefix, const ::ip::address& p_address );
   };  
   
   

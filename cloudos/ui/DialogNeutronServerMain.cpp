@@ -29,9 +29,13 @@ namespace ui {
 
   void DialogNeutronServerMain::createDialogElements() {
     std::stringstream intro;
-    intro << "Please specify your public IP range..." << std::endl
-          << "the hosting server will get the first," << std::endl
-          << "and your vServer will be able to get the other addresses" << std::endl;
+    intro << std::endl << "This specifies your public / external IP range." << std::endl
+          << "The first IP Address will be our default gateway." << std::endl
+          << "The second will be assigned to the Interactive Cloud OS server," << std::endl
+          << "the other IPs can be used for your Virtual Machines." << std::endl << std::endl
+          << "Please enter your Public IP range in CIDR" << std::endl
+          << "notation, e.g. 192.168.0.0/24" << std::endl << std::endl;
+          
     c_lbl_intro = YUI::widgetFactory()->createLabel(c_layout_main, intro.str());
     
     c_input_public_ip_pool = YUI::widgetFactory()->createInputField(c_layout_main, "Public IP Pool (CIDR)");
