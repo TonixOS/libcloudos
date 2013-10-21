@@ -72,6 +72,8 @@ namespace ui {
   void Dialog::processUserEvent ( YEvent* p_event ) { }
 
   void Dialog::createBottomDialogElements() {
+    // insert spacing before we create our button-frame
+    YUI::widgetFactory()->createLabel(c_layout_main, " ");
     YLayoutBox *layout_finishing_btns = YUI::widgetFactory()->createHBox(c_layout_main);
     
     // the order of buttons is for usability...
