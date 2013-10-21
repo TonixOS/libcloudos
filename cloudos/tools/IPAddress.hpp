@@ -77,7 +77,24 @@ namespace tools {
      */
     std::string netaddress() const;
     
+    /**
+     * returns the current prefix as string (just the number, as string)
+     * 
+     * e.g. on 10.0.0.1/24 it will return 24
+     */
     const std::string& prefix() const;
+    
+    /**
+     * checks, if the givven ip address is in range of the ip-range from the current IP
+     * 
+     * returns:
+     *   -1 => if the givven IP is lower and out of scope ( e.g. 10.10.10.255/24(givven) on 10.10.11.1/24(set) )
+     *   -2 => same as -1 plus, the givven prefix is different
+     *    0 => if the givven IP is in range
+     *    1 => if the givven IP is greater and out of scope ( e.g. 10.10.12.1/24(givven) on 10.10.11.1/24(set) )
+     *    2 => same as 1 plus, the givven prefix is different
+     */
+    int8_t isInRange( const IPAddress& p_ip );
     
     std::string error_message() { return c_error_message.str(); }
     
