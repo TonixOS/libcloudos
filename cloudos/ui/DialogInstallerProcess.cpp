@@ -25,6 +25,8 @@ namespace ui {
        << "Please wait, until all steps are finished." << std::endl
        << "This might take a few minutes.";
     c_lbl_intro = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
+    c_lbl_process_overview = YUI::widgetFactory()->createLabel(c_layout_main, "");
+    c_lbl_states = YUI::widgetFactory()->createLabel(c_layout_main, "");
   }
 
   void DialogInstallerProcess::setProcessOverview() {
@@ -61,7 +63,7 @@ namespace ui {
     c_layout_main->removeChild(c_lbl_states);
     
     setProcessOverview();
-    c_lbl_states = YUI::widgetFactory()->createLabel(c_layout_main, "");
+    c_lbl_states = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
   }
 
   void DialogInstallerProcess::processUserInput() {
