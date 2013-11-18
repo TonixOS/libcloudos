@@ -9,7 +9,7 @@ namespace ui {
   DialogInstallerFinished::DialogInstallerFinished ( short int p_dialog_flags, const std::string& p_dialog_title ) : Dialog ( p_dialog_flags, p_dialog_title ) {
   }
   
-  bool DialogInstallerFinished::setSettings ( const boost::filesystem3::path& p_file ) {
+  bool DialogInstallerFinished::setSettings ( const fs::path& p_file ) {
     return false; // we don't support settings
   }
 
