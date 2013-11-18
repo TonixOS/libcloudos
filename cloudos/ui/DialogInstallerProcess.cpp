@@ -12,7 +12,7 @@ namespace ui {
     c_states_done_count = 0;
   }
 
-  bool DialogInstallerProcess::setSettings ( const boost::filesystem3::path& p_file ) {
+  bool DialogInstallerProcess::setSettings ( const fs::path& p_file ) {
     return false; // we don't support settings for this screen
   }
 
