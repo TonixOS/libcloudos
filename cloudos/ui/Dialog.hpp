@@ -38,16 +38,19 @@ namespace ui {
   typedef boost::shared_ptr<pb::Message> MessagePointer;
   
   enum DialogUserDecision {
-    DIALOG_DECISION_NON_BTN = 0, // default value
-    DIALOG_DECISION_BTN_BACK = 1,
-    DIALOG_DECISION_BTN_EXIT = 2,
-    DIALOG_DECISION_BTN_NEXT = 3
+    DIALOG_DECISION_NON_BTN    = 0, // default value
+    DIALOG_DECISION_BTN_BACK   = 1,
+    DIALOG_DECISION_BTN_EXIT   = 2,
+    DIALOG_DECISION_BTN_NEXT   = 3,
+    DIALOG_DECISION_BTN_REBOOT = 4
   };
   
   enum DialogEnvironmentFlags {
-    NO_FLAG            = 0,
-    SHOW_BACK_BTN      = 1,
-    SHOW_FINISHING_BTN = 2
+    NO_FLAG            =  0,
+    SHOW_BACK_BTN      =  1,
+    SHOW_FINISHING_BTN =  2,
+    SHOW_REBOOT_BTN    =  4,
+    SHOW_NO_BUTTONS    = 16,
   };
   
   /**
@@ -107,6 +110,7 @@ namespace ui {
     YPushButton *c_btn_back;
     YPushButton *c_btn_exit;
     YPushButton *c_btn_next;
+    YPushButton *c_btn_reboot;
     
     short int c_dialog_flags;
     

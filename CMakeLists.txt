@@ -14,6 +14,8 @@ add_library(cloudos SHARED    cloudos/ui/Dialog.cpp
                               cloudos/ui/DialogNetwork.cpp
                               cloudos/ui/DialogNeutronServerMain.cpp
                               cloudos/ui/DialogStorage.cpp
+                              cloudos/ui/DialogInstallerProcess.cpp
+                              cloudos/ui/DialogInstallerFinished.cpp
                               cloudos/tools/System.cpp
                               cloudos/tools/IPAddress.cpp
                               cloudos/tools/NetworkInterface.cpp
@@ -31,6 +33,8 @@ add_library(cloudos SHARED    cloudos/ui/Dialog.cpp
 			      cloudos/proto/Package.MariadbClient.pb.cc
 			      cloudos/proto/Package.RabbitmqClient.pb.cc
 			      cloudos/proto/VM.ManagementServer.pb.cc
+			      cloudos/system/File.cpp
+			      cloudos/core/Object.cpp
 			      )
 target_link_libraries(cloudos yui
                               boost_system
@@ -51,6 +55,8 @@ install(FILES cloudos/ui/Dialog.hpp
               cloudos/ui/DialogNetwork.hpp
               cloudos/ui/DialogNeutronServerMain.hpp
               cloudos/ui/DialogStorage.hpp
+              cloudos/ui/DialogInstallerProcess.hpp
+              cloudos/ui/DialogInstallerFinished.hpp
               DESTINATION include/cloudos/ui/)
 
 install(FILES cloudos/tools/System.hpp
@@ -74,3 +80,9 @@ install(FILES cloudos/proto/OS.System.pb.h
 	      cloudos/proto/Package.RabbitmqClient.pb.h
 	      cloudos/proto/VM.ManagementServer.pb.h
               DESTINATION include/cloudos/proto/)
+
+install(FILES cloudos/system/File.hpp
+              DESTINATION include/cloudos/system/)
+
+install(FILES cloudos/core/Object.hpp
+              DESTINATION include/cloudos/core/)
