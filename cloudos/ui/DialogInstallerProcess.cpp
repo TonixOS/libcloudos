@@ -65,7 +65,7 @@ namespace ui {
     setProcessOverview();
     c_lbl_states = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
     c_dialog->recalcLayout();
-    c_dialog->open();
+    c_dialog->waitForEvent(1);
   }
 
   void DialogInstallerProcess::processUserInput() {
