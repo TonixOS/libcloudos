@@ -25,8 +25,6 @@ namespace ui {
        << "Please wait, until all steps are finished." << std::endl
        << "This might take a few minutes.";
     c_lbl_intro = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
-    c_lbl_process_overview = YUI::widgetFactory()->createLabel(c_layout_main, "");
-    c_lbl_states = YUI::widgetFactory()->createLabel(c_layout_main, "");
   }
 
   void DialogInstallerProcess::setProcessOverview() {
@@ -34,7 +32,8 @@ namespace ui {
     
     std::stringstream ss;
     ss << c_states_done_count << " of " << state_max_count << " finished";
-    c_lbl_process_overview->setText(ss.str());
+    c_layout_main->removeChild( c_lbl_process_overview );
+    c_lbl_process_overview = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
   }
 
   void DialogInstallerProcess::setNextState() {
@@ -59,13 +58,26 @@ namespace ui {
       default:
         break; //FIXME: report an error
     }
-    c_lbl_states->setText(ss.str());
+    c_layout_main->removeChild(c_lbl_states);
     
     setProcessOverview();
+    c_lbl_states = YUI::widgetFactory()->createLabel(c_layout_main, "");
   }
 
   void DialogInstallerProcess::processUserInput() {
 
+  }
+
+  void DialogInstallerProcess::show() {
+    if( c_already_shown == false ) {
+      c_already_shown = true;
+      
+      createDialogElements();
+      createBottomDialogElements();
+      c_dialog->doneMultipleChanges(); // stop keep printing back and show the dialog
+    }
+
+    c_dialog->activate(); // make it the top most dialog and enable user input
   }
 
   

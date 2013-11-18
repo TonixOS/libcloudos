@@ -29,6 +29,8 @@ namespace ui {
     
     virtual bool setSettings( const fs::path& p_file );
     
+    virtual void show();
+    
     void setNextState();
     
   protected:

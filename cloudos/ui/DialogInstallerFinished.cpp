@@ -26,6 +26,18 @@ namespace ui {
 
   }
 
+  void DialogInstallerFinished::show() {
+    if( c_already_shown == false ) {
+      c_already_shown = true;
+      
+      createDialogElements();
+      createBottomDialogElements();
+      c_dialog->doneMultipleChanges(); // stop keep printing back and show the dialog
+    }
+    
+    c_dialog->activate(); // make it the top most dialog and enable user input
+  }
+
   
 }
 }

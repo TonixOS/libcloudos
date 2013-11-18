@@ -69,7 +69,7 @@ namespace ui {
      * If the dialog is shown otherwise,
      * it will be pushed to the front of the printing-stack
      */
-    void show();
+    virtual void show();
     
     /**
      * Will disable the ability for the user, to change the data
