@@ -21,7 +21,7 @@ namespace ui {
     std::stringstream ss;
     ss << "The installation of Interactive Cloud OS is finished." << std::endl
        << "Do you wan't to reboot now? Select \"Reboot now\"" << std::endl
-       << "else choose \"Abort installer\", the system will remain installed." << std::endl << std::endl
+       << "else choose \"Abort installer\", the system will remain installed, but not rebooted." << std::endl << std::endl
        << "After the reboot, you need to wait a few minutes," << std::endl
        << "until your management VM is running." << std::endl
        << "You will be able to reach your management interface via:" << std::endl
