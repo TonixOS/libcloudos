@@ -17,8 +17,6 @@ namespace ui {
   public:
     DialogInstallerFinished ( short int p_dialog_flags = SHOW_BACK_BTN, const std::string& p_dialog_title = "" );
     
-    virtual void show();
-    
     virtual bool setSettings( const fs::path& p_file );
     
     void setManagementIP( const std::string& p_mgt_ip );
