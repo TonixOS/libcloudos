@@ -25,7 +25,7 @@ namespace ui {
        << "Please wait, until all steps are finished." << std::endl
        << "This might take a few minutes.";
     c_lbl_intro = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
-    YUI::widgetFactory()->createLabel(c_layout_main, "");
+    YUI::widgetFactory()->createLabel(c_layout_main, " ");
     c_lbl_process_overview = YUI::widgetFactory()->createLabel(c_layout_main, "");
     c_lbl_states = YUI::widgetFactory()->createLabel(c_layout_main, "");
   }
@@ -34,7 +34,7 @@ namespace ui {
     unsigned short state_max_count = 5;
     
     std::stringstream ss;
-    ss << c_states_done_count << " of " << state_max_count << " finished" << std::endl << std::endl;
+    ss << c_states_done_count << " of " << state_max_count << " finished" << std::endl << std::endl << " ";
     c_layout_main->removeChild( c_lbl_process_overview );
     c_lbl_process_overview = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
   }
