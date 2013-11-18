@@ -61,8 +61,6 @@ namespace ui {
         c_pushedBtn = DIALOG_DECISION_BTN_BACK;
       } else if( widget == c_btn_next ) {
         c_pushedBtn = DIALOG_DECISION_BTN_NEXT;
-      } else if( widget == c_btn_reboot ) {
-        c_pushedBtn = DIALOG_DECISION_BTN_REBOOT;
       }
       
       processUserEvent(event);
@@ -85,8 +83,8 @@ namespace ui {
     // normaly, we like to go on. So provide it as the first button...
     if( c_dialog_flags & SHOW_FINISHING_BTN ) {
       c_btn_next = YUI::widgetFactory()->createPushButton(layout_finishing_btns, "Install &NOW");
-    } if( c_dialog_flags & SHOW_REBOOT_BTN ) {
-      c_btn_reboot = YUI::widgetFactory()->createPushButton(layout_finishing_btns, "Reboot &NOW");
+    } else if( c_dialog_flags & SHOW_REBOOT_BTN ) {
+      c_btn_next = YUI::widgetFactory()->createPushButton(layout_finishing_btns, "Reboot &NOW");
     } else {
       c_btn_next = YUI::widgetFactory()->createPushButton(layout_finishing_btns, "&Next");
     }

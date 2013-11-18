@@ -19,6 +19,7 @@ namespace ui {
     ss << "The installation of Interactive Cloud OS is finished." << std::endl
        << "Do you wan't to reboot now? Select \"Reboot now\"" << std::endl
        << "else choose \"Abort installer\", the system will remain installed." << std::endl;
+    c_lbl_intro = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
   }
 
   void DialogInstallerFinished::processUserInput() {

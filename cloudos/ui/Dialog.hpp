@@ -41,8 +41,7 @@ namespace ui {
     DIALOG_DECISION_NON_BTN    = 0, // default value
     DIALOG_DECISION_BTN_BACK   = 1,
     DIALOG_DECISION_BTN_EXIT   = 2,
-    DIALOG_DECISION_BTN_NEXT   = 3,
-    DIALOG_DECISION_BTN_REBOOT = 4
+    DIALOG_DECISION_BTN_NEXT   = 3
   };
   
   enum DialogEnvironmentFlags {
@@ -110,7 +109,6 @@ namespace ui {
     YPushButton *c_btn_back;
     YPushButton *c_btn_exit;
     YPushButton *c_btn_next;
-    YPushButton *c_btn_reboot;
     
     short int c_dialog_flags;
     
