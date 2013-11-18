@@ -80,6 +80,7 @@ namespace ui {
     }
 
     c_dialog->activate(); // make it the top most dialog and enable user input
+    c_dialog->open();
   }
 
   
