@@ -34,7 +34,7 @@ namespace ui {
     unsigned short state_max_count = 5;
     
     std::stringstream ss;
-    ss << c_states_done_count << " of " << state_max_count << " finished" << std::endl << std::endl << " ";
+    ss << c_states_done_count << " of " << state_max_count << " finished" << std::endl << " ";
     c_layout_main->removeChild( c_lbl_process_overview );
     c_lbl_process_overview = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
   }
