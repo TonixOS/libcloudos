@@ -25,7 +25,7 @@ namespace ui {
        << "After the reboot, you need to wait a few minutes," << std::endl
        << "until your management VM is running." << std::endl
        << "You will be able to reach your management interface via:" << std::endl
-       << "http://" << c_mgt_ip << "/" << std::endl
+       << "http://" << c_mgt_ip.c_str() << "/" << std::endl
        << "Use the credentials:" << std::endl
        << "Username: operator" << std::endl
        << "Password: cloudos";
