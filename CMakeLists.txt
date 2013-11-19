@@ -34,6 +34,7 @@ add_library(cloudos SHARED    cloudos/ui/Dialog.cpp
 			      cloudos/proto/Package.RabbitmqClient.pb.cc
 			      cloudos/proto/VM.ManagementServer.pb.cc
 			      cloudos/system/File.cpp
+			      cloudos/system/Command.cpp
 			      cloudos/core/Object.cpp
 			      )
 target_link_libraries(cloudos yui
@@ -82,6 +83,7 @@ install(FILES cloudos/proto/OS.System.pb.h
               DESTINATION include/cloudos/proto/)
 
 install(FILES cloudos/system/File.hpp
+              cloudos/system/Command.hpp
               DESTINATION include/cloudos/system/)
 
 install(FILES cloudos/core/Object.hpp
