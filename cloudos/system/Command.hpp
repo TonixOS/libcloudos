@@ -2,6 +2,7 @@
 #ifndef CLOUDOS_SYSTEM_COMMAND_HPP__
 #define CLOUDOS_SYSTEM_COMMAND_HPP__
 
+#include <list>
 #include <ostream>
 #include <string>
 #include <sstream>
@@ -9,6 +10,7 @@
 
 #include <boost/process.hpp>
 #include <boost/optional.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <cloudos/core/Object.hpp>
 
@@ -23,6 +25,10 @@ namespace system {
     STDIN_INPUT    = 4,
     CMD_STREAM_ALL = 7
   };
+  
+  class Command;
+  typedef boost::shared_ptr<Command> CommandPointer;
+  typedef std::list<CommandPointer>  CommandPointerList;
   
   /**
    * Why we need this class?
@@ -48,8 +54,10 @@ namespace system {
    * 
    * TODO: Implement Debug LOG (with PID, command description, command line, command output)
    * 
-   * TODO: Add command description member (+get/set) => this way, we are able to print human friendly output
-   *       and are able to understand, what this command is about
+   * TODO: Add chroot("/path/where/to/chroot/") function to execute a command within chroot
+   * 
+   * TODO: Implement "expectedReturnValue(ushort)" to set a return-value,which should indicate,
+   *       that the command ended as expected (so the return value won't count as failed state)
    */
   class Command : public core::Object {
   public:

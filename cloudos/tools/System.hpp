@@ -13,6 +13,7 @@ extern "C" {
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
@@ -102,6 +103,21 @@ namespace tools {
       file << *message_string << std::endl;
       return true;
     }
+    
+    /**
+     * Will split the string p_source_string by all characters, given by p_delimiters.
+     * Will store all fields in p_storage (appended).
+     * Empty fields will be inserted too!
+     * 
+     * Use it like:
+     *   std::vector<std::string> storage;
+     *   System::splitString("Dies;ist|;ein;test", ";|", storage);
+     * Will result in:
+     *   ("Dies", "ist", "", "ein", "test")
+     */
+    static void splitString(const std::string& p_source_string,
+                            const std::string& p_delimiters,
+                            std::vector<std::string>& p_storage);
     
     /**
      * will return a set of interfaces (their names), available on this system
