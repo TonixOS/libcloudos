@@ -1,0 +1,57 @@
+package cloudos.config.os.hw; // namespace
+  
+
+message HDDiskPartition {
+  enum PartType {
+    EXT2 = 0; // just the partition type, not the filesystem
+    LVM  = 1;
+  }
+
+  // e.g. "root"
+  // will result in a partition LABEL
+  optional string label        =  1;
+
+  // will be filled by system::HDDisk()
+  optional string uuid         =  2;
+
+  // which partition type should be used
+  optional PartType type       =  4 [default = EXT2];
+
+  // the path within the operating system to access the partition
+  // will be filled by system::HDDisk()
+  // is called "index" as this simplifies programming
+  optional string index        =  5;
+
+  // our filesystem
+  optional string filesystem   =  6 [default = "ext4"];
+
+  // e.g. /mnt/
+  optional string mountpoint   =  8;
+
+  // e.g. noatime,users
+  optional string mountoptions = 10;
+
+  // size in GB, 0 (zero) for remaining space
+  optional uint64 size         = 12;
+
+  // unit of size ... allowed: K M G T P E
+  optional string size_unit    = 14 [default = "G"];
+}
+
+message HDDisk {
+  // e.g. /dev/sda
+  // is called "index" as this simplifies programming
+  optional string           index       = 2;
+
+  // all partitions which should be created...
+  repeated HDDiskPartition  partition   = 4;
+
+  // disk manufacture name
+  // will be filled by system::HDDisk()
+  optional string           model       = 6;
+
+  // size in GB
+  // will be filled by system::HDDisk()
+  optional uint64           size        = 8;
+}
+
