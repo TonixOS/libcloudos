@@ -6,8 +6,9 @@ namespace ui {
   
   DialogNetwork::DialogNetwork ( short int p_dialog_flags, const std::string& p_dialog_title )
                 : Dialog ( p_dialog_flags, p_dialog_title ) {
+    c_selected_interface = c_configs.end();
   }
-  
+  /*
   bool DialogNetwork::setSettings ( const fs::path& p_file ) {
     std::set<fs::path> tmp;
     tmp.insert( p_file );
@@ -16,13 +17,13 @@ namespace ui {
   
   bool DialogNetwork::setSettings ( std::set<fs::path> p_file ) {
     std::set<fs::path>::iterator i;
-    std::set<tools::NetworkInterfaceConfigPointer> tmp_ifaces;
+    std::set<tools::NetworkInterface::ConfigPointer> tmp_ifaces;
     for(i = p_file.begin(); i != p_file.end(); ++i) {
       if( fs::exists( *i ) == false ) {
         continue;
       }
-      
-      tools::NetworkInterfaceConfigPointer settings( new config::os::NetworkInterface );
+      //TODO: Create core::ConfigMulti<> to handle multiple config objects in c_config_multi
+      tools::NetworkInterface::ConfigPointer settings( new config::os::NetworkInterface );
       if( tools::System::readMessage(*i, settings) == false ) {
         continue;
       }
@@ -36,33 +37,20 @@ namespace ui {
     }
     
     return false;
+  }*/
+  
+  boost::shared_ptr <cloudos::config::os::NetworkInterface > DialogNetwork::getSelectedInterface() {
+    if( c_selected_interface == c_configs.end() ) {
+      LOG_E() << "our selected interface config object is invalid... This should not happend!";
+      return ConfigPointer();
+    }
+    ConfigPointer config( new config::os::NetworkInterface() );
+    config->CopyFrom( *(c_selected_interface->get()) );
+    return config;
   }
   
-  std::string DialogNetwork::getSelectedInterface() {
-    return c_selected_interface;
-  }
-
-  
-  bool DialogNetwork::setSettings ( std::set<tools::NetworkInterfaceConfigPointer> p_settings ) {
-    std::set<tools::NetworkInterfaceConfigPointer>::iterator i;
-    for( i = p_settings.begin(); i != p_settings.end(); ++i ) {
-      tools::NetworkInterfacePointer iface( new tools::NetworkInterface );
-      iface->setSettings( *i );
-      c_system_interfaces.insert( iface );
-    }
-    return true;
-  }
-
-  std::set<tools::NetworkInterfaceConfigPointer> DialogNetwork::getSettings() {
-    std::set<tools::NetworkInterfacePointer>::iterator i;
-    std::set<tools::NetworkInterfaceConfigPointer> tmp_ifaces;
-    for( i = c_system_interfaces.begin(); i != c_system_interfaces.end(); ++i ) {
-      tools::NetworkInterfaceConfigPointer msg( i->get()->getSettings()->New() );
-      msg->CopyFrom( *(i->get()->getSettings().get()) );
-      tmp_ifaces.insert( msg );
-    }
-    
-    return tmp_ifaces;
+  void DialogNetwork::setSelectedInterface ( const std::string& p_index ) {
+    c_selected_interface = findConfigByIndex(p_index);
   }
 
   void DialogNetwork::createDialogElements() {
@@ -70,22 +58,34 @@ namespace ui {
     ss << "Please select your primary interface." << std::endl;
     c_lbl_intro = YUI::widgetFactory()->createLabel(c_layout_main, ss.str());
     
-    const std::set<std::string> system_nics = tools::System::getAvailableInterfaces();
-    
-    if( system_nics.empty() ) {
-      ss << "ERROR: No interface was detectable!" << std::endl
-         << "Please add a network card to the system and run the installer again..." << std::endl;
-      c_lbl_intro->setLabel( ss.str() );
-      return;
+    if( c_configs.empty() ) {
+      c_configs = tools::System::getAvailableInterfaces();
+      
+      if( c_configs.empty() ) {
+        ss << "ERROR: No interface was detected or set!" << std::endl
+           << "Please add a network card to the system and run the installer again..." << std::endl;
+        c_lbl_intro->setLabel( ss.str() );
+        return;
+      }
     }
     
     c_cbox_interfaces = YUI::widgetFactory()->createComboBox(c_layout_main, "Available Interfaces");
     c_cbox_interfaces->setStretchable(YD_HORIZ, true);
     
-    std::set<std::string>::const_iterator it_iface;
-    for( it_iface = system_nics.begin(); it_iface != system_nics.end(); ++it_iface ) {
-      c_cbox_interfaces->addItem( *it_iface );
+    for(auto iface : c_configs) {
+      c_cbox_interfaces->addItem( iface->index() );
     }
+    
+    // override pre-selection to c_selected_interface, if c_selected_interface is set
+    if( c_selected_interface != c_configs.end() ) {
+      for(auto pos : c_config_mapping) {
+        if( pos.second == c_selected_interface ) {
+          c_cbox_interfaces->selectItem(pos.first);
+          break;
+        }
+      }
+    }
+    
     /*
     // 
     // I P   C O N F
@@ -171,44 +171,20 @@ namespace ui {
   }
   
   void DialogNetwork::handleBtnAddIp ( YEvent* e ) {
-    tools::IPAddress ip;
+    tools::IPAddress ip( c_input_ip->value() );
     
-    if( ip.setValue( c_input_ip->value() ) == false ) {
-      c_lbl_intro->setLabel( c_lbl_intro->label() + ip.error_message() );
+    c_selected_interface = findConfigByIndex( c_cbox_interfaces->selectedItem()->label() );
+    if( tools::NetworkInterface::addIP(c_selected_interface->get(), std::move(ip) ) == false ) {
+      LOG_W() << "got invalid IP address... Ignore input and ask the user again...";
+      c_lbl_intro->setLabel( c_lbl_intro->label() + "Invalid IP address given! Please try it again..." );
       return;
     }
     
-    std::string iface_str = c_cbox_interfaces->selectedItem()->label();
-    std::map<std::string, tools::NetworkInterfacePointer>::iterator it;
-    it = c_iface_name_mapping.find( iface_str );
-    if( it == c_iface_name_mapping.end() ) {
-      c_iface_name_mapping[iface_str] = tools::NetworkInterfacePointer( new tools::NetworkInterface );
-    }
-    c_iface_name_mapping[iface_str]->addIP( ip );
     fillIpsSelectionBox();
   }
   
   void DialogNetwork::handleBtnAddRoute ( YEvent* e ) {
-    tools::IPAddress route_address, route_gateway;
-    
-    if( (route_address.setValue( c_input_route->value() ) &&
-         route_gateway.setValue( c_input_route_via->value() )) == false ) { // if any of them failed
-      c_lbl_intro->setLabel( c_lbl_intro->label() +
-                             route_address.error_message() +
-                             route_gateway.error_message() );
-      return;
-    }
-  
-    // 
-    // A D D   R O U T E
-    // 
-    std::string iface_str = c_cbox_interfaces->selectedItem()->label();
-    std::map<std::string, tools::NetworkInterfacePointer>::iterator it;
-    it = c_iface_name_mapping.find( iface_str );
-    if( it == c_iface_name_mapping.end() ) {
-      c_iface_name_mapping[iface_str] = tools::NetworkInterfacePointer( new tools::NetworkInterface );
-    }
-    c_iface_name_mapping[iface_str]->addRoute( route_address, route_gateway );
+    // TODO
     fillRoutesSelectionBox();
   }
 
@@ -216,8 +192,10 @@ namespace ui {
 
   
   void DialogNetwork::processUserInput() {
-    c_selected_interface = c_cbox_interfaces->selectedItem()->label();
-    /*
+    c_selected_interface = findConfigByIndex( c_cbox_interfaces->selectedItem()->label() );
+    LOG_D() << "user selected interface " << (*c_selected_interface)->index();
+    
+    /* TODO: rewrite code to match new API
     c_settings->set_name( c_sbox_ip_addresses->selectedItem()->label() );
     
     // validate givven IP address
@@ -242,32 +220,24 @@ namespace ui {
   
   void DialogNetwork::fillIpsSelectionBox() {
     c_sbox_ip_addresses->deleteAllItems();
-    c_ip_mapping.clear();
     
-    std::map<std::string, tools::NetworkInterfacePointer>::iterator it_ifaces;
-    for( it_ifaces = c_iface_name_mapping.begin(); it_ifaces != c_iface_name_mapping.end(); ++it_ifaces ) {
-      std::string element;
-      pb::RepeatedPtrField<std::string> ips = it_ifaces->second->getSettings()->ip_cidr();
-      pb::RepeatedPtrField<std::string>::iterator it_ips;
-      for(it_ips = ips.begin(); it_ips != ips.end(); ++it_ips) { // walk through IP addresses
-        if( element.empty() ) { // first round
-          element = it_ifaces->first + "\t" + *it_ips;
-        } else {
-          element.clear();
-          element = "\t\t" + *it_ips;
-        }
-        YItem *item = new YItem( element );
+    for(auto& nic : c_configs) {
+      std::string iface = nic->index() + "\t"; // get interface name
+      for(auto& ip : nic->ip_cidr()) {
+        YItem* item = new YItem( iface + ip );
         
-        // create matching map
-        c_ip_mapping[item] = std::pair<tools::NetworkInterfacePointer, std::string>( it_ifaces->second, *it_ips );
-        c_sbox_ip_addresses->addItem( item );
+        // remove the leading iface name after the first occurence, so the ui is a little bit more clean
+        if( iface.empty() == false ) {
+          iface = "\t\t";
+        }
       }
     }
   }
 
 
   void DialogNetwork::fillRoutesSelectionBox() {
-    c_sbox_routes->deleteAllItems();
+    // TODO: adapt to new API
+    /*c_sbox_routes->deleteAllItems();
     c_route_mapping.clear();
     
     std::map<std::string, tools::NetworkInterfacePointer>::iterator it_ifaces;
@@ -287,18 +257,15 @@ namespace ui {
           }
           YItem *item = new YItem( element );
           
-          tools::NetworkRouteConfigPointer r( new config::os::NetworkRoute );
+          tools::NetworkRoute::ConfigPointer r( new config::os::NetworkRoute );
           r->set_gateway( it_gateway->gateway() );
           r->add_route_ip( route );
           
           c_route_mapping[item] = std::pair<tools::NetworkInterfacePointer,
                                             tools::NetworkRouteConfigPointer >(it_ifaces->second, r);
           c_sbox_routes->addItem(item);
-    } } }  // for(ifaces)->for(gateways)->for(routes)
+    } } }*/  // for(ifaces)->for(gateways)->for(routes)
     
   }
-
-
-
   
 }} // cloudos::ui

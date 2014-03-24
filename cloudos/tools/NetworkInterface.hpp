@@ -2,6 +2,9 @@
 #ifndef CLOUDOS_TOOLS_NETWROKINTERFACE_HPP__
 #define CLOUDOS_TOOLS_NETWROKINTERFACE_HPP__
 
+#include <string>
+#include <vector>
+
 #include <cloudos/tools/NetworkElement.hpp>
 #include <cloudos/tools/NetworkRoute.hpp>
 
@@ -9,33 +12,27 @@ namespace cloudos {
 namespace tools {
   
   class NetworkInterface;
-  class NetworkRoute;
-  typedef boost::shared_ptr<NetworkRoute> NetworkRoutePointer;
+  typedef config::os::NetworkInterface NetworkInterfaceConfig;
   
   /**
    * the first of "pair" is the NIC System ID
    * the second the NIC System name
    */
   typedef std::vector<std::pair<unsigned int, std::string> > NetworkInterfaceVector;
+  typedef boost::shared_ptr<NetworkInterface>                NetworkInterfacePointer;
   
-  typedef boost::shared_ptr<NetworkInterface>             NetworkInterfacePointer;
-  typedef boost::shared_ptr<config::os::NetworkInterface> NetworkInterfaceConfigPointer;
-  
-  class NetworkInterface : public NetworkElement {
+  /**
+   * FIXME: add comments about the class
+   */
+  class NetworkInterface : public NetworkElement, public core::Config<NetworkInterfaceConfig> {
   public:
     NetworkInterface();
-    NetworkInterface( const std::string& p_interface_name );
     
     /**
      * Loads all data from the currenct system settings of the interface
      * TODO: implement
      */
     virtual bool initFromSystem();
-    
-    virtual bool setSettings( const fs::path& p_file );
-    virtual bool setSettings( NetworkInterfaceConfigPointer p_settings );
-    
-    virtual NetworkInterfaceConfigPointer getSettings();
     
     /**
      * Will set the route(s) in the system, if not already active...
@@ -59,81 +56,47 @@ namespace tools {
     virtual bool isConfigAlreadyApplied();
     
     /**
-     * you may add multiple IPs at once with this template-based function
-     * be aware, it requires T to not be a smart-pointer!
-     * T also needs:
-     *   - a const_iterator
-     *   - cbegin()
-     *   - cend()
-     * Ts containment has to to an
-     *   - IPAddress or
-     *   - boost::asio::ip::address or
-     *   - std::string
+     * Returns true, if the given IP could be removed or is not available...
+     * else false.
+     */
+    static bool removeIP( NetworkInterfaceConfig* p_config, IPAddress&& p_ip );
+    
+    /**
+     * Will add the ip address to p_config if it is not already in its IP list.
      * 
-     * will return the number of newly added IPs
-     * will dedup givven IPs
+     * Returns true if the ip address already exists or could be added.
      */
-    template<typename T>
-    unsigned addIPAddresses( const T& p_container ) {
-      unsigned int counter = 0;
-      typename T::const_iterator i;
-      for( i = p_container.cbegin(); i != p_container.cend(); ++i ) {
-        IPAddress ip;
-        ip.setValue( *i );
-        if( ip.isValid() && hasIP( ip ) > -1 ) {
-          ++counter;
-          addIP( ip );
-        }
-      }
-      return counter;
-    }
-    
-    bool addIP( const IPAddress& p_ip );
-    
-    bool removeIP( const IPAddress& p_ip );
-    
-    bool addRoute( const IPAddress& p_route, const IPAddress& p_gateway );
-    
-    NetworkRoutePointer getRouteByGateway( const IPAddress& p_gateway_ip );
+    static bool addIP( NetworkInterfaceConfig* p_config, IPAddress&& p_ip );
     
     /**
-     * an easy way to call getRouteByGateway()
+     * Checks, if the given IPAddress is already set within p_config.
      */
-    NetworkRoutePointer operator[]( const IPAddress& p_gateway_ip );
-    
-    bool hasRoute( const IPAddress& p_route );
+    static bool ipExists( NetworkInterfaceConfig* p_config, const IPAddress& p_ip );
     
     /**
-     * returns -1 if the IP wasn't found in our list
-     * else will return the index value, where the IP was found
+     * Adds the route, if it not already exists... will return true on success and if it already exists...
+     * else false.
      */
-    int hasIP( const IPAddress& p_ip ) const;
+    static bool addRoute( NetworkInterfaceConfig* p_config, IPAddress&& p_route, const IPAddress& p_gateway );
+    
+    /**
+     * Will check, if we already have a route, where we are routing via the given p_gateway;
+     * if so, return the route config object.
+     * 
+     * Else, create a new route config object and return it.
+     */
+    static NetworkRouteConfig* getRouteConfigObject( NetworkInterfaceConfig* p_config, const IPAddress& p_gateway );
+    
+    /**
+     * Checks, if the given gateway exists in p_config->route() repeated field.
+     * 
+     * Returns the corresponding NetworkRouteConfig* or a nullptr, if the gateway
+     * does not exist.
+     */
+    static NetworkRouteConfig* gatewayExists( NetworkInterfaceConfig* p_config, const IPAddress& p_gateway );
     
   protected:
   private:
-    std::string                   c_interface_name;
-    std::set<NetworkRoutePointer> c_routes;
-    
-    NetworkInterfaceConfigPointer c_settings;
-    
-    /**
-     * returns pointer to oject (from c_routes), or nullptr
-     */
-    NetworkRoutePointer isGatewayAlreadySet( const IPAddress& p_ip );
-    
-    /**
-     * Extract all config::os::NetworkRoute objects from c_settings
-     * and create an tools::NetworkRoute object from it. Insert this
-     * object into c_routes
-     * 
-     * Will dedup routes/gateways within our c_settings object
-     * 
-     * Will remove all config::os::NetworkRoute objects from c_settings
-     * 
-     * This needs to be done to be sure, that we are in sync with c_routes
-     */
-    void extractRoutesFromSettings();
-    
   };
   
 }

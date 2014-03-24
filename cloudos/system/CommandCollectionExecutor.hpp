@@ -24,8 +24,9 @@ namespace system {
    * We could not use a map, as we need a specifyable order, while executing all commands
    * std::pair.first should be a description of the CommandVector containment.
    */
-  typedef std::vector< std::pair<std::string, CommandVector> > CommandCollection;
-  typedef boost::shared_ptr<CommandCollection >             CommandCollectionPointer;
+  typedef std::pair<std::string, CommandVector>         CommandIndexPair;
+  typedef std::vector< CommandIndexPair >              CommandCollection;
+  typedef boost::shared_ptr<CommandCollection > CommandCollectionPointer;
   
   typedef std::vector< std::pair<std::string, Command> > CommandErrorVector;
   

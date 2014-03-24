@@ -47,6 +47,7 @@ namespace system {
 
   void CommandCollectionExecutor::setCommandCollection ( CommandCollection && p_collection ) {
     c_error_cmd_collection.clear();
+    LOG_I() << "set command collection with " << p_collection.size() << " set of commands";
     c_cmd_collection = std::move( p_collection );
     c_is_valid = validateCommandCollection();
   }
@@ -68,6 +69,7 @@ namespace system {
       
       for( i_vec = i_seq->second.begin(), i_vec_end = i_seq->second.end(); i_vec != i_vec_end; ++i_vec) {
         if( i_vec->isValid() == false ) {
+          LOG_E() << "found invalid command (" << i_vec->getCommandName() << ") in collection " << c_running_collection;
           c_error_cmd_collection.push_back( std::pair<std::string, Command>( c_running_collection, *i_vec ) );
         }
       }// iterate over vector

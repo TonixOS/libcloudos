@@ -9,18 +9,18 @@ namespace ui {
                    const std::string& p_dialog_title ) {
     c_already_shown = false;
     
-    c_pushedBtn  = DIALOG_DECISION_NON_BTN;
-    c_dialog_flags = p_dialog_flags;
+    c_pushedBtn     = DIALOG_DECISION_NON_BTN;
+    c_dialog_flags  = p_dialog_flags;
     
     // create the window
-    c_dialog     = YUI::widgetFactory()->createPopupDialog();
-    c_layout_main = YUI::widgetFactory()->createVBox(c_dialog);
+    c_dialog        = YUI::widgetFactory()->createPopupDialog();
+    c_layout_main   = YUI::widgetFactory()->createVBox(c_dialog);
     
     // defere screen printing
     c_dialog->startMultipleChanges();
     
     // now create our title
-    c_heading    = YUI::widgetFactory()->createHeading(c_layout_main, p_dialog_title);
+    c_heading       = YUI::widgetFactory()->createHeading(c_layout_main, p_dialog_title);
     
     // now do your own stuff
   }
@@ -116,6 +116,9 @@ namespace ui {
     return input;
   }
 
+  void Dialog::reportErrorToUser ( std::string && p_msg ) const {
+    
+  }
   
   Dialog::~Dialog() {
     c_dialog->destroy();

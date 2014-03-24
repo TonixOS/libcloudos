@@ -47,7 +47,7 @@ namespace tools {
     /**
      * returns a list of devices, without partitions!
      */
-    virtual const std::set<StorageLocalConfigPointer> getAvailableDisks(bool p_filter_install_able = false);
+    virtual const std::set<StorageLocalConfigPointer> getAvailableDisks(bool p_filter_installable = false);
     
     /**
      * Will apply all settings within c_settings on this system
@@ -73,6 +73,10 @@ namespace tools {
                               bool p_set_lvm_flag = false,
                               const std::string p_fs_type = std::string("ext2"));
     
+    /**
+     * Will return "gpt" or "msdos", depending on the disk-size.
+     */
+    std::string getRequiredPartitionType() const;
     
   private:
     StorageLocalConfigPointer c_settings;
@@ -88,7 +92,7 @@ namespace tools {
     /**
      * returns size in GiB
      */
-    unsigned long long calculateSize( PedCHSGeometry p_geometry, long p_sector_size );
+    uint64_t calculateSize( PedCHSGeometry p_geometry, long p_sector_size );
     
     /**
      * Will return the number of sectors for this disk to match the nearest amount of disk-space

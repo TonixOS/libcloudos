@@ -3,27 +3,23 @@
 #define CLOUDOS_TOOLS_NETWORKROUTE_HPP__
 
 #include <cloudos/tools/NetworkElement.hpp>
-#include <cloudos/tools/NetworkInterface.hpp>
 
 namespace cloudos {
 namespace tools {
   
   class NetworkRoute;
-  class NetworkInterface;
-  typedef boost::shared_ptr<NetworkInterface>         NetworkInterfacePointer;
+  typedef boost::shared_ptr<NetworkRoute> NetworkRoutePointer;
+  typedef config::os::NetworkRoute        NetworkRouteConfig;
   
-  typedef boost::shared_ptr<NetworkRoute>             NetworkRoutePointer;
-  typedef boost::shared_ptr<config::os::NetworkRoute> NetworkRouteConfigPointer;
-  
-  class NetworkRoute : public NetworkElement {
+  /**
+   * TODO: provide static member deduplicateRouteIPs()
+   *                             applyToSystem()
+   *                             removeFromSystem()
+   *                             addRoute()
+   */
+  class NetworkRoute : public NetworkElement, public core::Config<NetworkRouteConfig> {
   public:
     NetworkRoute();
-    
-    virtual bool setSettings( const fs::path& p_file );
-    virtual bool setSettings( NetworkRouteConfigPointer p_settings );
-    virtual bool setSettings( config::os::NetworkRoute *p_config );
-    
-    virtual NetworkRouteConfigPointer getSettings();
     
     /**
      * Loads all data from the currenct system settings of the route
@@ -58,6 +54,19 @@ namespace tools {
      */
     bool addRoute(const IPAddress& p_route);
     
+    /**
+     * Adds a route (if not already set) to the NetworkRoute object.
+     * 
+     * Will return true, if the route could be added or is already added.
+     * Else false.
+     */
+    static bool addRoute( NetworkRouteConfig* p_config, IPAddress&& p_route );
+    
+    /**
+     * Checks, if the given route already exists...
+     */
+    static bool routeExists(const NetworkRouteConfig* p_config, const IPAddress& p_route);
+    
     // TODO: handle interface names too
 //    bool setGateway(const ip::address& p_gateway);
     
@@ -69,7 +78,6 @@ namespace tools {
     
   protected:
   private:
-    NetworkRouteConfigPointer c_settings;
   };
   
 }} // cloudos::tools

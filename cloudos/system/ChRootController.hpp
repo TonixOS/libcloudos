@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/process.hpp>
 
 #include <cloudos/core/Object.hpp>
@@ -14,6 +14,8 @@ namespace ps = boost::process;
 
 namespace cloudos {
 namespace system {
+
+  class Command; // forward declaration
   
   class ChRootController;
   typedef boost::shared_ptr<ChRootController> ChRootControllerPointer;
@@ -37,6 +39,10 @@ namespace system {
    * if chroot.isValid():
    *   chroot.getRootPath();
    * 
+   * TODO: implement umount after failure in mount... use a vector of umount commands and IndexName
+   *       of the mount command; then connect "Command::sigFinished()" with a function, that
+   *       umounts all needed values
+   * TODO: make multi-theading able
    */
   class ChRootController : public core::Object, public core::ShareAble {
   public:
@@ -48,7 +54,18 @@ namespace system {
      * Will set up the chroot environment.
      *   - mount tmpfs/devfs/sysfs etc.
      */
-    bool setup();
+    bool enable();
+    
+    /**
+     * Will unmount all chroot related mountpoints.
+     * If chroot isn't set, it will return true anyway
+     */
+    bool disable();
+    
+    /**
+     * Returns true, if chroot is currently enabled
+     */
+    bool isEnabled() { return c_chroot_is_active; }
     
     /**
      * returns the path to the chroot environment.
@@ -61,8 +78,6 @@ namespace system {
     const std::string& getChrootBin() const {
       return c_chroot_cmd;
     }
-    
-  protected:
     
     /**
      * sets the path to the chroot environment
@@ -77,6 +92,8 @@ namespace system {
       return setRootPath(std::move(p_root_path));
     }
     
+  protected:
+    
     void init();
     
   private:
@@ -84,9 +101,20 @@ namespace system {
     
     bool c_chroot_is_active;
     
-    const std::string c_chroot_cmd;
+    std::string c_chroot_cmd;
+    
+    /**
+     * Will retry to execute the umount/mount command, until it might succeed.
+     * Sometimes, umount/mount fails a few times... we will retry it for a short time
+     * to increase the possibility to succeed.
+     * If it faild all times, we will abort.
+     * 
+     * Returns 0, if command succeeded; else 1
+     * This way, we are able to combine multiple umounts and check, if all ended successful.
+     */
+    uint retryUntilSucceeded( Command& p_command );
     
   };
-}}
+}} // cloudos::system
   
 #endif

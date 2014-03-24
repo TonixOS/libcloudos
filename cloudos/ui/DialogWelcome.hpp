@@ -13,6 +13,11 @@ namespace ui {
   
   typedef boost::shared_ptr<DialogWelcome> DialogWelcomePointer;
   
+  enum SystemsRequirementsMeet {
+    SYSTEMREQUIREMENTS_MEMORY = 1,
+    SYSTEMREQUIREMENTS        = 1 // all requirements included
+  };
+  
   class DialogWelcome : public Dialog {
   public:
     DialogWelcome( short int p_dialog_flags = SHOW_BACK_BTN,
@@ -31,6 +36,8 @@ namespace ui {
   private:
     std::stringstream c_welcome_text;
     YLabel *c_lb_welcome_text;
+    
+    uint c_system_requirements_meet;
   };
   
 }

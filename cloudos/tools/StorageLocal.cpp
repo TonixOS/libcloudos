@@ -33,13 +33,13 @@ namespace tools {
     return msg;
   }
 
-  const std::set<StorageLocalConfigPointer> StorageLocal::getAvailableDisks(bool p_filter_install_able) {
+  const std::set<StorageLocalConfigPointer> StorageLocal::getAvailableDisks(bool p_filter_installable) {
     if( c_available_disks.empty() ) {
       // scan for disks
       ped_device_probe_all();
       // 0 will indicate, that we need the first element, instead of "next"
-      PedDevice *device;
-      for( device = ped_device_get_next(0); device; device = ped_device_get_next(device) ) {
+      PedDevice *device = ped_device_get_next(0);
+      for( ; device; device = ped_device_get_next(device) ) {
         c_available_disks[ device->path ] = device;
       }
     }
@@ -49,7 +49,7 @@ namespace tools {
     pb::uint64 disk_size = 0;
     for(i = c_available_disks.begin(); i != c_available_disks.end(); ++i) {
       disk_size = calculateSize( i->second->hw_geom , i->second->sector_size );
-      if( p_filter_install_able && disk_size < 20 ) {
+      if( p_filter_installable && disk_size < 20 ) {
         continue;
       }
       
@@ -83,13 +83,13 @@ namespace tools {
   bool StorageLocal::createPartitionTable() {
     PedDevice *device;
     if( c_available_disks.empty() ) {
-      device = ped_device_get( c_settings->device_path().c_str() );
-      c_available_disks[c_settings->device_path()] = device;
+      device = ped_device_get( c_settings->index().c_str() );
+      c_available_disks[c_settings->index()] = device;
     } else {
-      device = c_available_disks[c_settings->device_path()];
+      device = c_available_disks[c_settings->index()];
     }
     
-    std::cout << "starting to partition " << c_settings->device_path() << std::endl;
+    std::cout << "starting to partition " << c_settings->index() << std::endl;
     
     PedDiskType *type;
     if( c_settings->size() > 2000 ) { // gt 2TB
@@ -99,13 +99,13 @@ namespace tools {
     }
     
     if( type == nullptr ) {
-      std::cerr << "Error while getting partition type for " << c_settings->device_path() << std::endl;
+      std::cerr << "Error while getting partition type for " << c_settings->index() << std::endl;
       return false;
     }
     
     c_disk = ped_disk_new_fresh(device, type);
     if( c_disk == nullptr ) {
-      std::cerr << "Error while creating a new partition for " << c_settings->device_path() << std::endl;
+      std::cerr << "Error while creating a new partition for " << c_settings->index() << std::endl;
       return false;
     }
     return true;
@@ -129,7 +129,7 @@ namespace tools {
     PedSector max_sectors, start_sector, part_end_sector;
     
     // get last usable sector
-    max_sectors = c_available_disks[ c_settings->device_path() ]->length;
+    max_sectors = c_available_disks[ c_settings->index() ]->length;
     
     // get start sector
     if( c_partitions.empty() ) {
@@ -170,7 +170,7 @@ namespace tools {
       ped_partition_set_flag( part, PED_PARTITION_LVM, 1 );
     }
     
-    PedConstraint *constraint = ped_device_get_constraint( c_available_disks[ c_settings->device_path() ] );
+    PedConstraint *constraint = ped_device_get_constraint( c_available_disks[ c_settings->index() ] );
     
     if( ped_disk_add_partition(c_disk, part, constraint) == 0 ) {
       std::cerr << "Error while adding first partition" << __FILE__ << '/' << __LINE__ << std::endl;
@@ -182,42 +182,48 @@ namespace tools {
     return true;
   }
 
-
+  std::string StorageLocal::getRequiredPartitionType() const {
+    // if >2TB, return gpt
+    return ( c_settings->size() > 2000 ) ? "gpt" : "msdos";
+  }
+  
+  // 
+  // P R I V A T E
+  // 
   
   PedSector StorageLocal::getSectorCounterForNumber ( unsigned int p_value, char p_unit ) {
-    unsigned long long return_value = p_value;
     
-    short iterator = 0;
+    short shiftterator = 0;
     switch( p_unit ) {
       case 'E':
-        ++iterator;
+        ++shiftterator;
       case 'T':
-        ++iterator;
+        ++shiftterator;
       case 'G':
-        ++iterator;
+        ++shiftterator;
       case 'M':
-        ++iterator;
+        ++shiftterator;
       case 'K':
-        ++iterator;
+        ++shiftterator;
         break;
       default:
+        //FIXME log error
         return 0;
     }
-    for( ; iterator != 0; --iterator  ) {
-      return_value = return_value * 1024;
-    }
+    // multiply by 1024 == shift 10 bits to left
+    uint64_t return_value = p_value << ( 10 * shiftterator );
     
-    return (PedSector) return_value / c_available_disks[ c_settings->device_path() ]->sector_size;
+    return (PedSector) return_value / c_available_disks[ c_settings->index() ]->sector_size;
   }
+  
+  // 
+  // P R I V A T E
+  // 
 
-
-
-  unsigned long long StorageLocal::calculateSize ( PedCHSGeometry p_geometry, long p_sector_size ) {
-    unsigned long long size = p_geometry.cylinders * p_geometry.heads * p_geometry.sectors * p_sector_size;
-    
+  uint64_t StorageLocal::calculateSize ( PedCHSGeometry p_geometry, long p_sector_size ) {
     // now calculate down to GB        KiB    MiB    GiB
-    size = (unsigned long long) size / 1024 / 1024 / 1024;
-    return size;
+    // divide by 1024 == shift 10 bits to right
+    return (p_geometry.cylinders * p_geometry.heads * p_geometry.sectors * p_sector_size) >> 30;
   }
 
 

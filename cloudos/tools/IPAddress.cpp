@@ -37,12 +37,14 @@ namespace tools {
       address = ip::address::from_string( p_ip.substr(0, prefix_pos), error_address );
       prefix  = p_ip.substr(prefix_pos+1);
       if( isPrefixValid( prefix, address ) == false ) {
+        LOG_W() << "invalid ip prefix given in string: " << p_ip;
         c_error_message << "invalid ip prefix givven: " << p_ip << std::endl;
         return false;
       }
     }
     
     if( error_address ) {
+      LOG_W() << "invalid ip address given in string: " << p_ip;
       c_error_message << "invalid IP address givven: " << p_ip << std::endl;
       return false;
     }
@@ -70,6 +72,7 @@ namespace tools {
     
     calculateNetaddress();
     calculateBroadcast();
+    return true;
   }
   
   std::string IPAddress::cidr() const {
@@ -100,7 +103,7 @@ namespace tools {
     return std::string( inet_ntoa( tmp ) );
   }
   
-  const std::string& IPAddress::prefix() const {
+  std::string IPAddress::prefix() const {
     if( c_is_valid == false ) {
       return std::string();
     }
@@ -118,6 +121,16 @@ namespace tools {
     return std::string( inet_ntoa( tmp ) );
   }
 
+  int8_t IPAddress::isInRange( const IPAddress& p_ip ) {
+    
+    if( p_ip.c_address_binary < c_netaddress ) {
+      return -1;
+    }
+    if( p_ip.c_address_binary > c_broadcast ) {
+      return 1;
+    }
+    return 0;
+  }
   
   bool IPAddress::operator== ( const IPAddress& p_ip ) const {
     return cidr() == p_ip.cidr();
@@ -144,7 +157,6 @@ namespace tools {
   // 
   void IPAddress::init() {
     c_error_message.clear();
-    c_is_valid   = false;
     c_netmask    =     0;
     c_broadcast  =     0;
     c_netaddress =     0;

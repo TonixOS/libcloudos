@@ -1,4 +1,8 @@
 
+extern "C" {
+#include <sys/sysinfo.h>
+}
+
 #include "DialogWelcome.hpp"
 
 namespace cloudos {
@@ -7,6 +11,18 @@ namespace ui {
   DialogWelcome::DialogWelcome ( short int p_dialog_flags,
                                  const std::string& p_dialog_title )
                         : Dialog ( p_dialog_flags, p_dialog_title ) {
+    
+    boost::shared_ptr<struct sysinfo> system(new struct sysinfo);
+    if( sysinfo(system.get()) == 0 ) {
+      const long required_memory = 6000000000; // Bytes (6GB) => 6000 * 1000 * 1000
+      if( system->totalram > required_memory ) {
+        c_system_requirements_meet = c_system_requirements_meet | SYSTEMREQUIREMENTS_MEMORY;
+      }
+    } else {
+      std::cerr << "faild calling sysinfo() within " << __FILE__ <<  __FUNCTION__ << std::endl;
+      c_system_requirements_meet = false;
+    }
+    
   }
   
   bool DialogWelcome::setSettings ( const fs::path& p_file ) {
@@ -38,7 +54,12 @@ namespace ui {
 
   
   void DialogWelcome::createDialogElements() {
-    if( c_welcome_text.rdbuf()->in_avail() == 0 ) {
+    // if there are some requirements not meet,
+    // we will get a result greater zero
+    if( c_system_requirements_meet != SYSTEMREQUIREMENTS ) {
+      c_welcome_text << "You don't seem to have enought RAM installed." << std::endl
+                     << "Interactive Cloud OS needs at least 6GB of RAM";
+    } else if( c_welcome_text.rdbuf()->in_avail() == 0 ) { // if c_welcome_text is empty
       c_welcome_text << "Welcome to Interactive Cloud OS (Version __CLOUDOS__VERSION__)" << std::endl
                      << "Warning: THIS INSTALLATION WILL ERASE ANY EXISTING DATA ON YOUR DISKS."  << std::endl
                      << "DO YOU WANT TO PROCEED?" << std::endl;
@@ -50,5 +71,4 @@ namespace ui {
     // we won't do anything here, as we're just showing some text...
   }
   
-}
-}
+}}

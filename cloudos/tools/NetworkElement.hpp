@@ -2,23 +2,10 @@
 #ifndef CLOUDOS_TOOLS_NETWORKELEMENT_HPP__
 #define CLOUDOS_TOOLS_NETWORKELEMENT_HPP__
 
-#include <set>
-#include <string>
-#include <fstream>
-#include <vector>
-
-#include <boost/process/process.hpp>
-#include <boost/asio/ip/address.hpp>
-#include <boost/filesystem.hpp>
-
-#include <google/protobuf/message.h>
-
-#include <cloudos/tools/System.hpp>
+#include <cloudos/core/Config.hpp>
 #include <cloudos/tools/IPAddress.hpp>
-
 #include <cloudos/proto/OS.Network.pb.h>
 
-namespace ip = boost::asio::ip;
 namespace pb = google::protobuf;
 
 namespace cloudos {
@@ -30,8 +17,6 @@ namespace tools {
    */
   class NetworkElement {
   public:
-    
-    virtual bool setSettings( const fs::path& p_file ) = 0;
     
     /**
      * Loads all data from the currenct system settings of the route

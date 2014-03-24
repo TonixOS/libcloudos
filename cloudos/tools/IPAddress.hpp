@@ -6,6 +6,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <cloudos/core/Object.hpp>
+
 extern "C" {
 #include <arpa/inet.h>
 }
@@ -19,14 +21,14 @@ namespace tools {
   
   typedef boost::shared_ptr<IPAddress> IPAddressPointer;
   
-  class IPAddress {
+  class IPAddress : public core::Object {
   public:
     
     IPAddress();
     IPAddress( const std::string& p_ip );
     IPAddress( const ::ip::address& p_ip );
     
-    bool isValid() const;
+    bool isValid() const override;
     
     /** 
      * @brief takes & validates an ip address as string like 127.0.0.1/24 - prefix is required!
@@ -82,17 +84,15 @@ namespace tools {
      * 
      * e.g. on 10.0.0.1/24 it will return 24
      */
-    const std::string& prefix() const;
+    std::string prefix() const;
     
     /**
      * checks, if the givven ip address is in range of the ip-range from the current IP
      * 
      * returns:
-     *   -1 => if the givven IP is lower and out of scope ( e.g. 10.10.10.255/24(givven) on 10.10.11.1/24(set) )
-     *   -2 => same as -1 plus, the givven prefix is different
-     *    0 => if the givven IP is in range
-     *    1 => if the givven IP is greater and out of scope ( e.g. 10.10.12.1/24(givven) on 10.10.11.1/24(set) )
-     *    2 => same as 1 plus, the givven prefix is different
+     *   -1 => if the given IP is lower and out of scope ( e.g. 10.10.10.255/24(givven) on 10.10.11.1/24(set) )
+     *    0 => if the given IP is in range
+     *    1 => if the given IP is greater and out of scope ( e.g. 10.10.12.1/24(givven) on 10.10.11.1/24(set) )
      */
     int8_t isInRange( const IPAddress& p_ip );
     
@@ -103,7 +103,6 @@ namespace tools {
     
   protected:
   private:
-    bool c_is_valid;
     std::stringstream c_error_message;
     
     ::ip::address     c_address;

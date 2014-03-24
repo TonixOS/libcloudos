@@ -16,25 +16,3 @@ message Installer {
   optional bool install_nova       = 60 [default = false];
 }
 
-message InstallerDiskPartition {
-  enum Type {
-    EXT4 = 0;
-    LVM  = 1;
-  }
-  optional string uuid         = 2;
-  optional Type   type         = 4;
-  optional string mountpoint   = 6;
-  optional string mountoptions = 8;
-}
-
-message InstallerDisk {
-  optional string                 device_path = 2;
-  repeated InstallerDiskPartition partition   = 4;
-
-  // disk manufacture name
-  optional string                 model       = 6;
-
-  // size in GB
-  optional uint64                 size        = 8;
-}
-

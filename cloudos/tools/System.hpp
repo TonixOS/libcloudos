@@ -6,7 +6,7 @@
 extern "C" {
 //for NIC detection
 #include <net/if.h>
-}
+} // extern "C"
 
 #include <set>
 #include <string>
@@ -17,25 +17,31 @@ extern "C" {
 
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/container/stable_vector.hpp>
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
+#include <cloudos/system/HDDisk.hpp>
+#include <cloudos/tools/NetworkInterface.hpp>
+
 namespace fs = boost::filesystem;
+namespace bc = boost::container;
 namespace pb = google::protobuf;
 
 namespace cloudos {
 namespace tools {
   
   typedef boost::shared_ptr<std::stringstream> StringStreamPointer;
-  
   typedef boost::shared_ptr<std::fstream> FStreamPointer;
-  
   typedef boost::shared_ptr<pb::Message> MessagePointer;
   
   class System {
   public:
+    
+    typedef bc::stable_vector< system::HDDisk::ConfigPointer >   HDDiskConfigPointerVector;
+    typedef bc::stable_vector< NetworkInterface::ConfigPointer > NICConfigPointerVector;
     
     /**
      * Will read a google::Message from file, givven by p_filename
@@ -122,7 +128,25 @@ namespace tools {
     /**
      * will return a set of interfaces (their names), available on this system
      */
-    static std::set<std::string> getAvailableInterfaces();
+    static NICConfigPointerVector getAvailableInterfaces();
+    
+    /**
+     * Will return a vector of available disks and their config settings...
+     * 
+     * If p_filter_installable is set, it will just return disk where the storage size
+     * is bigger than 20GB.
+     */
+    static HDDiskConfigPointerVector getAvailableHDDisks( bool p_filter_installable = false );
+    
+    /**
+     * Will register a SIGSEGV handler (our backtrace() function)
+     */
+    static void enableBacktrace();
+    
+    /**
+     * Will do the backtrace
+     */
+    static void backtrace(int p_sig);
     
   };
   

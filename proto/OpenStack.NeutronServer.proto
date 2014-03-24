@@ -3,8 +3,9 @@ import "OS.Network.proto";
 package cloudos.config.openstack;
 
 message NeutronServer {
-  // bind services to ip (in CIDR)...
-  optional string host_ip = 2;
+  // our interface name, which we like to use as "port"
+  // to the world
+  optional string index = 2; 
 
   // define which IP range should be configured as public IP pool
   // specify in CIDR

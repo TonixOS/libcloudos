@@ -4,7 +4,8 @@
 
 #include <yui/YComboBox.h>
 
-#include <cloudos/tools/StorageLocal.hpp>
+#include <cloudos/core/ConfigVector.hpp>
+#include <cloudos/system/HDDisk.hpp>
 
 #include "Dialog.hpp"
 
@@ -15,22 +16,22 @@ namespace ui {
   
   typedef boost::shared_ptr<DialogStorage> DialogStoragePointer;
   
-  class DialogStorage : public Dialog {
+  class DialogStorage : public Dialog, public core::ConfigVector<config::os::hw::HDDisk> {
   public:
     DialogStorage( short int p_dialog_flags = SHOW_BACK_BTN,
                    const std::string& p_dialog_title = "" );
     
-    virtual bool setSettings( const fs::path& p_file );
-    virtual bool setSettings( tools::StorageLocalConfigPointer p_settings );
+    /**
+     * Will return the disk config object, of the selected disk
+     */
+    virtual ConfigPointer getSelectedDisk();
     
     /**
-     * Will return a pointer to an object of the copied internal storage information
-     * This object is a merge of data, givven by the user, and our default values, givven
-     * while constructing this object.
+     * Sets the selected disk.
      * 
-     * You will need to destroy the object by your own...
+     * index is the config::os::hw::HDDisk->index aka device_path
      */
-    virtual tools::StorageLocalConfigPointer getSettings();
+    virtual void setSelectedDisk(const std::string& p_index);
     
   protected:
     virtual void processUserInput();
@@ -43,10 +44,15 @@ namespace ui {
     YLabel    *c_lbl_intro;
     YComboBox *c_cbox_disks;
     
-    std::map<YItem*, tools::StorageLocalConfigPointer> c_device_sbox_match;
+    /**
+     * Maps YItem Pointer to HDDisk path, so we could find the corresponding config later on
+     */
+    std::map<YItem*, ConfigPointerVector::iterator> c_config_mapping;
     
-    tools::StorageLocalConfigPointer c_settings;
-    tools::StorageLocalPointer c_storage;
+    /**
+     * Our selected disk
+     */
+    ConfigPointerVector::iterator c_selected_disk;
   };
   
 }

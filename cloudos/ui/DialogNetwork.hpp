@@ -6,8 +6,8 @@
 
 #include <yui/YComboBox.h>
 
+#include <cloudos/core/ConfigVector.hpp>
 #include <cloudos/tools/NetworkInterface.hpp>
-
 #include <cloudos/proto/OS.Network.pb.h>
 
 #include "Dialog.hpp"
@@ -19,24 +19,20 @@ namespace ui {
   
   typedef boost::shared_ptr<DialogNetwork> DialogNetworkPointer;
   
-  class DialogNetwork : public Dialog {
+  /**
+   * TODO: implement setConfig overrides... to ensure, that we update our iface list and configs...
+   */
+  class DialogNetwork : public Dialog, public core::ConfigVector<config::os::NetworkInterface> {
   public:
     DialogNetwork( short int p_dialog_flags = SHOW_BACK_BTN,
                    const std::string& p_dialog_title = "" );
     
-    virtual bool setSettings( const fs::path& p_file );
-    virtual bool setSettings( std::set<fs::path> p_file );
-    virtual bool setSettings( std::set<tools::NetworkInterfaceConfigPointer> p_settings );
+    ConfigPointer getSelectedInterface();
     
     /**
-     * Will return a pointer to an object of the copied internal storage information
-     * This object is a merge of data, givven by the user, and our default values, givven
-     * while constructing this object.
-     * 
-     * You will need to destroy the object by your own...
+     * Will set the selected interface
      */
-    virtual std::set<tools::NetworkInterfaceConfigPointer> getSettings();
-    std::string getSelectedInterface(); // TODO
+    void setSelectedInterface(const std::string& p_index);
     
   protected:
     virtual void processUserEvent ( YEvent* p_event );
@@ -44,7 +40,8 @@ namespace ui {
     virtual void createDialogElements();
     
   private:
-    std::string c_selected_interface; // TODO
+    ConfigPointerVector::iterator c_selected_interface;
+    
     // 
     // Our GUI elements
     // 
@@ -59,18 +56,21 @@ namespace ui {
     YPushButton   *c_btn_add_route;
     YSelectionBox *c_sbox_routes; // read only by user, will be filled by c_input_route
     
-    std::map<std::string, tools::NetworkInterfacePointer> c_iface_name_mapping;
+    /**
+     * Maps YItem Pointer to NIC configs
+     */
+    std::map<YItem*, ConfigPointerVector::iterator> c_config_mapping;
     
     /**
      * will contain a mapping from YItem to an ip address
      * this way, we're able to lookup the ip address, which should be deleted (when requested by user)
      */
-    std::map<YItem*, std::pair<tools::NetworkInterfacePointer, std::string> > c_ip_mapping;
+    //std::map<YItem*, std::pair<tools::NetworkInterfacePointer, std::string> > c_ip_mapping;
     /**
      * same as c_ip_mapping, just for routes
      */
-    std::map<YItem*, std::pair<tools::NetworkInterfacePointer,
-                               tools::NetworkRouteConfigPointer > > c_route_mapping;
+    /*std::map<YItem*, std::pair<tools::NetworkInterfacePointer,
+                               tools::NetworkRoute::ConfigPointer > > c_route_mapping;*/
     
     std::set<tools::NetworkInterfacePointer> c_system_interfaces;
     

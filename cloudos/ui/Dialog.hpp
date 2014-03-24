@@ -2,7 +2,6 @@
 #ifndef CLOUDOS_UI_DIALOG_HPP__
 #define CLOUDOS_UI_DIALOG_HPP__
 
-#include <map>
 #include <set>
 #include <string>
 #include <sstream>
@@ -49,7 +48,7 @@ namespace ui {
     SHOW_BACK_BTN      =  1,
     SHOW_FINISHING_BTN =  2,
     SHOW_REBOOT_BTN    =  4,
-    SHOW_NO_BUTTONS    = 16,
+    SHOW_NO_BUTTONS    = 16
   };
   
   /**
@@ -86,14 +85,11 @@ namespace ui {
     virtual void waitForUserDialogDecision();
     
     /**
-     * Will load the google::protobuf::Message from the givven file
-     */
-    virtual bool setSettings(const fs::path& p_file) = 0;
-    
-    /**
      * Which buttons was pushed by the user?
      */
     inline DialogUserDecision getPushedBtn() { return c_pushedBtn; }
+    
+    void reportErrorToUser(std::string&& p_msg) const;
     
     ~Dialog();
     

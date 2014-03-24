@@ -1,31 +1,13 @@
 
 #include <cloudos/ui/DialogStorage.hpp>
+#include <cloudos/tools/System.hpp>
 
 namespace cloudos {
 namespace ui {
   
   DialogStorage::DialogStorage ( short int p_dialog_flags, const std::string& p_dialog_title )
                 : Dialog ( p_dialog_flags, p_dialog_title ) {
-    c_settings = tools::StorageLocalConfigPointer( new config::os::InstallerDisk );
-    c_storage  = tools::StorageLocalPointer( new tools::StorageLocal );
-  }
-  
-  bool DialogStorage::setSettings ( const fs::path& p_file ) {
-    if( fs::exists( p_file ) == false ) {
-      return false;
-    }
-    return tools::System::readMessage(p_file, c_settings);
-  }
-  
-  bool DialogStorage::setSettings ( tools::StorageLocalConfigPointer p_settings ) {
-    c_settings->CopyFrom( *p_settings );
-    return true;
-  }
-
-  tools::StorageLocalConfigPointer DialogStorage::getSettings() {
-    tools::StorageLocalConfigPointer msg( c_settings->New() );
-    msg->CopyFrom( *c_settings );
-    return msg;
+    c_selected_disk = c_configs.end();
   }
 
   void DialogStorage::createDialogElements() {
@@ -39,29 +21,59 @@ namespace ui {
     c_cbox_disks->setStretchable(YD_HORIZ, true);
     c_cbox_disks->setStretchable(YD_VERT,  true);
     
-    std::set<tools::StorageLocalConfigPointer> disk_list = c_storage->getAvailableDisks( true );
-    std::set<tools::StorageLocalConfigPointer>::const_iterator it;
-    pb::uint64 biggest_hdd = 0;
-    for( it = disk_list.begin(); it != disk_list.end(); ++it ) {
-      std::stringstream ss;
-      ss << it->get()->device_path() << " (" << it->get()->size() << "GiB) Model: "
-         << it->get()->model();
-      YItem *item = new YItem( ss.str() );
+    c_configs = std::move( tools::System::getAvailableHDDisks(true) );
+    
+    if( c_configs.empty() ) {
+      LOG_E() << "no disk configs available... Abort!";
+      return;
+    }
+    
+    // pre-select biggest disk
+    pb::uint64 biggest_size = 0;
+    for(auto disk = c_configs.begin(), end = c_configs.end(); disk != end; ++disk ) {
+      std::stringstream tmpss;
+      tmpss << (*disk)->index() << " (" << (*disk)->size() << "GiB) Model: " << (*disk)->model();
+      YItem* item = new YItem( tmpss.str() );
       
-      c_device_sbox_match[item] = *it; // for later matching
-      c_cbox_disks->addItem( item );
+      c_config_mapping[item] = disk;
       
-      // always pre-select the biggest HDD
-      if( c_settings->device_path() == it->get()->device_path() || it->get()->size() > biggest_hdd ) {
-        c_cbox_disks->selectItem( item );
-        biggest_hdd = it->get()->size();
+      c_cbox_disks->addItem(item);
+      if( biggest_size < (*disk)->size() ) {
+        c_cbox_disks->selectItem(item);
+        biggest_size = (*disk)->size();
       }
     }
+    
+    // override pre-selection to c_selected_disk, if c_selected_disk is set
+    if( c_selected_disk != c_configs.end() ) {
+      for(auto pos : c_config_mapping) {
+        if( pos.second == c_selected_disk ) {
+          c_cbox_disks->selectItem(pos.first);
+          break;
+        }
+      }
+    }
+    LOG_D() << "pre-selected disk: " << c_config_mapping[ c_cbox_disks->selectedItem() ]->get()->index();
+  }
+  
+  DialogStorage::ConfigPointer DialogStorage::getSelectedDisk() {
+    if( c_selected_disk == c_configs.end() ) {
+      return ConfigPointer( new config::os::hw::HDDisk() );
+    }
+    
+    ConfigPointer copy( new config::os::hw::HDDisk() );
+    copy->CopyFrom( *(c_selected_disk->get()) );
+    return copy;
+  }
+  
+  void DialogStorage::setSelectedDisk(const std::string& p_index) {
+    c_selected_disk = findConfigByIndex( p_index );
   }
 
   void DialogStorage::processUserInput() {
-    YItem *item = c_cbox_disks->selectedItem();
-    setSettings( c_device_sbox_match.at( item ) );
+    std::string index( c_config_mapping[c_cbox_disks->selectedItem()]->get()->index() );
+    LOG_I() << "user selected disk: " << index;
+    c_selected_disk = findConfigByIndex( std::move(index) );
   }
 
 
