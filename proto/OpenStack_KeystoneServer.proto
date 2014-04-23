@@ -1,6 +1,6 @@
 package cloudos.config.openstack;
 
-import "OS.Network.proto";
+import "OS_Network.proto";
 
 message KeystoneServer {
   optional string admin_token = 2;

@@ -24,7 +24,7 @@
 #include <yui/YInputField.h>
 
 #include <cloudos/tools/IPAddress.hpp>
-#include <cloudos/proto/OpenStack.NeutronServer.pb.h>
+#include <OpenStack_NeutronServer.pb.h>
 
 #include "Dialog.hpp"
 

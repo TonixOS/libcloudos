@@ -23,7 +23,7 @@
 
 #include <boost/smart_ptr/shared_ptr.hpp>
 
-#include <cloudos/proto/OS.HW.HDDisk.pb.h>
+#include <OS_HW_HDDisk.pb.h>
 #include <cloudos/core/Config.hpp>
 
 // access to local disks

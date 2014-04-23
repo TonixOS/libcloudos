@@ -26,7 +26,7 @@
 #include <boost/container/stable_vector.hpp>
 
 #include <cloudos/system/InstallerExtended.hpp>
-#include <cloudos/proto/OpenStack.KeystoneClient.pb.h>
+#include <OpenStack_KeystoneClient.pb.h>
 
 namespace cloudos {
 namespace system {

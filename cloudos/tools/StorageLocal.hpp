@@ -29,7 +29,7 @@
 #include <boost/filesystem.hpp>
 
 #include <cloudos/tools/System.hpp>
-#include <cloudos/proto/OS.Installer.pb.h>
+#include <OS_Installer.pb.h>
 
 // access to local disks
 extern "C" {

@@ -15,7 +15,30 @@ add_definitions(-DBOOST_NO_CXX11_SCOPED_ENUMS)
 #   libcloudos.so: undefined reference to `boost::log::v2s_mt_posix::aux::once_block_sentry::enter_once_block() const'
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
+
+#
+# L I B  -  P A C K A G E S
+#
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories ("${PROJECT_SOURCE_DIR}")
+
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS proto/OS_System.proto
+                                            proto/OS_Network.proto
+                                            proto/OS_Installer.proto
+                                            proto/OS_HW_HDDisk.proto
+                                            proto/OpenStack_CinderServer.proto
+                                            proto/OpenStack_GlanceServer.proto
+                                            proto/OpenStack_KeystoneClient.proto
+                                            proto/OpenStack_KeystoneServer.proto
+                                            proto/OpenStack_NeutronServer.proto
+                                            proto/OpenStack_NovaMetadataClient.proto
+                                            proto/Package_MariadbClient.proto
+                                            proto/Package_RabbitmqClient.proto
+                                            proto/VM_ManagementServer.proto
+                                            )
+
 
 add_library(cloudos SHARED    cloudos/ui/Dialog.cpp
                               cloudos/ui/DialogWelcome.cpp
@@ -30,19 +53,6 @@ add_library(cloudos SHARED    cloudos/ui/Dialog.cpp
                               cloudos/tools/IPAddress.cpp
                               cloudos/tools/NetworkInterface.cpp
                               cloudos/tools/NetworkRoute.cpp
-                              cloudos/proto/OS.System.pb.cc
-                              cloudos/proto/OS.Network.pb.cc
-                              cloudos/proto/OS.Installer.pb.cc
-                              cloudos/proto/OS.HW.HDDisk.pb.cc
-			      cloudos/proto/OpenStack.CinderServer.pb.cc
-			      cloudos/proto/OpenStack.GlanceServer.pb.cc
-			      cloudos/proto/OpenStack.KeystoneClient.pb.cc
-			      cloudos/proto/OpenStack.KeystoneServer.pb.cc
-			      cloudos/proto/OpenStack.NeutronServer.pb.cc
-			      cloudos/proto/OpenStack.NovaMetadataClient.pb.cc
-			      cloudos/proto/Package.MariadbClient.pb.cc
-			      cloudos/proto/Package.RabbitmqClient.pb.cc
-			      cloudos/proto/VM.ManagementServer.pb.cc
 			      cloudos/system/File.cpp
 			      cloudos/system/FileTar.cpp
 			      cloudos/system/Command.cpp
@@ -59,15 +69,16 @@ add_library(cloudos SHARED    cloudos/ui/Dialog.cpp
 			      cloudos/core/Object.cpp
 			      cloudos/core/IndexName.cpp
 			      cloudos/core/IndexedCommandQueue.cpp
+			      ${PROTO_SRCS}
 			      )
 target_link_libraries(cloudos yui
                               boost_system
                               boost_filesystem
                               boost_log
                               boost_system
-                              protobuf
                               pthread
 			      parted
+			      ${PROTOBUF_LIBRARIES}
 			      )
 SET_TARGET_PROPERTIES(cloudos PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -92,19 +103,7 @@ install(FILES cloudos/tools/System.hpp
               cloudos/tools/NetworkRoute.hpp
               DESTINATION include/cloudos/tools/)
 
-install(FILES cloudos/proto/OS.System.pb.h
-              cloudos/proto/OS.Network.pb.h
-              cloudos/proto/OS.Installer.pb.h
-              cloudos/proto/OS.HW.HDDisk.pb.h
-	      cloudos/proto/OpenStack.CinderServer.pb.h
-	      cloudos/proto/OpenStack.GlanceServer.pb.h
-	      cloudos/proto/OpenStack.KeystoneClient.pb.h
-	      cloudos/proto/OpenStack.KeystoneServer.pb.h
-	      cloudos/proto/OpenStack.NeutronServer.pb.h
-	      cloudos/proto/OpenStack.NovaMetadataClient.pb.h
-	      cloudos/proto/Package.MariadbClient.pb.h
-	      cloudos/proto/Package.RabbitmqClient.pb.h
-	      cloudos/proto/VM.ManagementServer.pb.h
+install(FILES ${PROTO_HDRS}
               DESTINATION include/cloudos/proto/)
 
 install(FILES cloudos/system/File.hpp

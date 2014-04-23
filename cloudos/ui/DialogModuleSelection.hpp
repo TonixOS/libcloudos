@@ -23,7 +23,7 @@
 
 #include <yui/YCheckBox.h>
 
-#include <cloudos/proto/OS.Installer.pb.h>
+#include <OS_Installer.pb.h>
 
 #include "Dialog.hpp"
 

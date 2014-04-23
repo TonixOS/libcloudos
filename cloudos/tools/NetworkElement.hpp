@@ -23,7 +23,7 @@
 
 #include <cloudos/core/Config.hpp>
 #include <cloudos/tools/IPAddress.hpp>
-#include <cloudos/proto/OS.Network.pb.h>
+#include <OS_Network.pb.h>
 
 namespace pb = google::protobuf;
 

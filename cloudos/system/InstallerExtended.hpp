@@ -30,10 +30,10 @@
 #include <cloudos/tools/IPAddress.hpp>
 
 // our configuration storage
-#include <cloudos/proto/OS.Installer.pb.h>
-#include <cloudos/proto/OS.System.pb.h>
-#include <cloudos/proto/OS.Network.pb.h>
-#include <cloudos/proto/OpenStack.NeutronServer.pb.h>
+#include <OS_Installer.pb.h>
+#include <OS_System.pb.h>
+#include <OS_Network.pb.h>
+#include <OpenStack_NeutronServer.pb.h>
 
 namespace cloudos {
 namespace system {

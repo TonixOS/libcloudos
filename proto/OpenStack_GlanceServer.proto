@@ -1,4 +1,4 @@
-import "OS.Network.proto";
+import "OS_Network.proto";
 
 package cloudos.config.openstack;
 

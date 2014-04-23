@@ -28,7 +28,7 @@
 
 #include <cloudos/system/InstallerExtended.hpp>
 #include <cloudos/system/InstallerManagementSystem.hpp>
-#include <cloudos/proto/OpenStack.NeutronServer.pb.h>
+#include <OpenStack_NeutronServer.pb.h>
 
 namespace cloudos {
 namespace system {

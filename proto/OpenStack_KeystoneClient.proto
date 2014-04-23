@@ -1,6 +1,6 @@
 package cloudos.config.openstack;
 
-import "OS.Network.proto";
+import "OS_Network.proto";
 
 message KeystoneClient {
   optional string host = 1;

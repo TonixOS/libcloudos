@@ -21,7 +21,7 @@
 #ifndef CLOUDOS_UI_DIALOG_LANGUAGE_HPP__
 #define CLOUDOS_UI_DIALOG_LANGUAGE_HPP__
 
-#include <cloudos/proto/OS.System.pb.h>
+#include <OS_System.pb.h>
 
 #include "Dialog.hpp"
 

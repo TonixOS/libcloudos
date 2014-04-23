@@ -27,7 +27,7 @@
 
 #include <cloudos/core/ConfigVector.hpp>
 #include <cloudos/tools/NetworkInterface.hpp>
-#include <cloudos/proto/OS.Network.pb.h>
+#include <OS_Network.pb.h>
 
 #include "Dialog.hpp"
 
