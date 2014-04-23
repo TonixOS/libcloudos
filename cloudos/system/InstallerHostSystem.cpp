@@ -318,19 +318,24 @@ namespace system {
   
   bool InstallerHostSystem::stepLaunchManagementInstaller() {
     
-    if( !c_mgt_installer ) {
-      LOG_E() << "this function is called, but our management pointer is invalid... Abort!";
-      return false;
-    }
     
-    ThreadPointer mgt( new boost::thread( boost::bind(&InstallerManagementSystem::setup, c_mgt_installer.get())) );
-    LOG_I() << "management installer started with ID: " << mgt->get_id();
-    c_mgt_installer_thread = mgt;
     
     return true;
   }
   
   bool InstallerHostSystem::stepFinishManagementInstaller() {
+    
+    
+    if( !c_mgt_installer ) {
+      LOG_E() << "this function is called, but our management pointer is invalid... Abort!";
+      return false;
+    }
+        
+    ThreadPointer mgt( new boost::thread( boost::bind(&InstallerManagementSystem::setup, c_mgt_installer.get())) );
+    LOG_I() << "management installer started with ID: " << mgt->get_id();
+    c_mgt_installer_thread = mgt;
+    
+    // put above code back to stepLaunchManagementInstaller
     
     if( !c_mgt_installer_thread ) {
       LOG_E() << "this function is called, but our thread pointer is invalid... Abort!";

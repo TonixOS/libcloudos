@@ -120,7 +120,7 @@ namespace system {
   
   bool InstallerManagementSystem::stepConfigureHorizon() {
     File config( getRootDirAsPath() / "etc/openstack/horizon/setup_settings.py" );
-    /*if( config.isWriteable() == false ) {
+    if( config.isWriteable() == false ) {
       return false;
     }
     
@@ -131,7 +131,7 @@ namespace system {
     
     LOG_I() << "replace __KEYSTONE_IP__ with " << c_config_keystone_client->host() << " in " << config.getFileName();
     std::string buf;
-    //boost::replace_all(buf, "__KEYSTONE_IP__", c_config_keystone_client->host());
+    boost::replace_all(buf, "__KEYSTONE_IP__", c_config_keystone_client->host());
     
     // generate SECRET
     // -a 0   => generate random passwords
@@ -150,7 +150,7 @@ namespace system {
     boost::trim(secret);
     boost::replace_all(buf, "__SECRET_KEY__",  secret);
     
-    return config.setContent( std::move(buf) );*/
+    return config.setContent( std::move(buf) );
     return false;
   }
   
