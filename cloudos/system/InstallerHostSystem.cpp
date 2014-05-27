@@ -195,8 +195,6 @@ namespace system {
       return false;
     }
     
-    // just a test
-    
     Command enable_nic("systemctl");
     enable_nic.setChRootController(c_chroot);
     enable_nic << "enable" << "network@br-ex.service";
