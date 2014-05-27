@@ -19,6 +19,8 @@ add_definitions(-DBOOST_ALL_DYN_LINK)
 #
 # L I B  -  P A C K A G E S
 #
+
+# P R O T C O L B U F F E R S
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -38,6 +40,10 @@ PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS proto/OS_System.proto
                                             proto/Package_RabbitmqClient.proto
                                             proto/VM_ManagementServer.proto
                                             )
+
+# B O O S T
+set(Boost_USE_MULTITHREADED      ON)
+find_package(Boost REQUIRED COMPONENTS system filesystem log)
 
 
 add_library(cloudos SHARED    cloudos/ui/Dialog.cpp
@@ -72,13 +78,10 @@ add_library(cloudos SHARED    cloudos/ui/Dialog.cpp
 			      ${PROTO_SRCS}
 			      )
 target_link_libraries(cloudos yui
-                              boost_system
-                              boost_filesystem
-                              boost_log
-                              boost_system
                               pthread
 			      parted
 			      ${PROTOBUF_LIBRARIES}
+			      ${Boost_LIBRARIES}
 			      )
 SET_TARGET_PROPERTIES(cloudos PROPERTIES LINKER_LANGUAGE CXX)
 
